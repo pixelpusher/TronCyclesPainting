@@ -70,7 +70,7 @@ class Cycle
     pathShape = createShape();
     pathShape.beginShape();
     pathShape.noFill();
-    pathShape.stroke(255);
+    pathShape.stroke(c);
     pathShape.strokeWeight(4);
 
     for (PVector v : path) 

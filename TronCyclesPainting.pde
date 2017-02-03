@@ -3,8 +3,8 @@
 // Modified and adapted by Evan Raskob 2017
 // http://pixelist.info
 //
-// Licensed under the GNU Affero 3.0+
-// http://www.gnu.org/licenses/agpl.html
+// Licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License:
+// http://creativecommons.org/licenses/by-nc-sa/4.0/
 //
 
 import java.util.LinkedList;
@@ -23,10 +23,13 @@ final int [] dys = {
   0, -1, 0, 1
 };
 
-final int CYCLE_LIFETIME = 100;
+final int CYCLE_LIFETIME = 200;
 
 Grid grid;
 LinkedList<Cycle> cycles;
+LinkedList<Gesture> gestures;
+
+
 final int mincycles = 1;
 final int maxcycles = 120;
 int ncycles;
@@ -39,7 +42,7 @@ int nextwait = 0;
 static int myW=1280;
 static int myH=720;
 
-int minMove = myW/60;
+int minMove = 1;
 
 
 // handle shutdown properly and save recordings -- needs to be library, really
@@ -55,9 +58,8 @@ void settings()
 
 void setup() {
   //fullScreen();
-
   smooth(4);
-  
+
   // needed to make sure we stop recording properly
   disposeHandler = new PEventsHandler(this);
 
@@ -66,6 +68,7 @@ void setup() {
 
   frameRate(FRAMERATE);
   cycles = new LinkedList<Cycle>();
+  gestures = new LinkedList<Gesture>();
   background(180);
   //image(srcImg, 0,0);
   next();
@@ -117,18 +120,24 @@ void draw()
     if (w.alive)
     {
       w.move(grid);
-    } 
-    else 
+    } else 
     {
       if (respawn)
       {
-        addCycle(sketchMouseX(), sketchMouseY());
+        addCycle(sketchMouseX()/scaling, sketchMouseY()/scaling);
       }
     }
-    
+
     w.draw();
-    
   } //end for all Cycles
+
+  for (Gesture g : gestures)
+  {
+    g.update();
+    if (g.alive)
+      g.draw();
+  }
+
   popMatrix();
 
   if (grid.isFullySolid()) 
@@ -170,8 +179,6 @@ void next() {
 
 Cycle addCycle(int x, int y)
 {
-  x = x/scaling;
-  y = y/scaling;
   Cycle w = new Cycle(x, y, CYCLE_LIFETIME);
   if (cycles.size() >= maxcycles)
   {

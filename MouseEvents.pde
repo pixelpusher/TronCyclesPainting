@@ -1,9 +1,9 @@
 boolean theMouseDown = false;
 int smouseX  =0, 
-smouseY  =0, 
-spmouseX =0, 
-spmouseY =0, 
-smState  =0;
+  smouseY  =0, 
+  spmouseX =0, 
+  spmouseY =0, 
+  smState  =0;
 
 float startMouseX = 0;
 float endMouseX   = 0;
@@ -61,15 +61,19 @@ void handleMousePressed()
 {
   if (!theMouseDown)
   {
-    addCycle(sketchMouseX(), sketchMouseY());
+    theMouseDown = true;
+    startMouseX=sketchMouseX();
+    startMouseY=sketchMouseY();
+
+    // note last point
+    _lastP = new PVector(startMouseX/scaling, startMouseY/scaling);
+    grid.set((int)_lastP.x, (int)_lastP.y, Grid.CLEAR);
+
+    addCycle((int)_lastP.x, (int)_lastP.y);
+    gestures.push(new Gesture((int)_lastP.x, (int)_lastP.y, CYCLE_LIFETIME*4)); // first is always current
   }
-  
-  theMouseDown = true;
-  startMouseX=sketchMouseX();
-  startMouseY=sketchMouseY();
-  
-  grid.set(sketchMouseX()/scaling, sketchMouseY()/scaling, Grid.CLEAR);
-  
+
+
   //println("pressed: " + sketchMouseX() + ", " + sketchMouseY());
 }
 
@@ -84,12 +88,22 @@ void mouseDragged()
 //
 // add cycle if 
 //
+
+PVector _lastP = null;
+
 void handleMouseDragged()
 {
   theMouseDown = true;
-  if (dist(sketchMouseX(), sketchMouseY(), sketchpMouseX(), sketchpMouseY()) > minMove)
+  int gridX = sketchMouseX()/scaling;
+  int gridY = sketchMouseY()/scaling;
+ 
+  if (dist(gridX, gridY, _lastP.x, _lastP.y) > minMove)
   {
-    addCycle(sketchMouseX(), sketchMouseY());
+    addCycle(gridX, gridY);
+    Gesture g = gestures.peek();
+    g.addPoint(gridX, gridY);
+    _lastP.x = gridX;
+    _lastP.y = gridY;
   }
 }
 
@@ -114,4 +128,8 @@ void mouseReleased()
 void handleMouseReleased()
 {
   theMouseDown = false;
+  
+  // would need fixing later
+  Gesture g = gestures.peek();
+  g.finished = true;
 }
