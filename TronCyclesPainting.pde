@@ -42,7 +42,7 @@ int nextwait = 0;
 static int myW=1280;
 static int myH=720;
 
-int minMove = 1;
+int minMove = 2;
 
 
 // handle shutdown properly and save recordings -- needs to be library, really
@@ -58,7 +58,7 @@ void settings()
 
 void setup() {
   //fullScreen();
-  smooth(4);
+  smooth(2);
 
   // needed to make sure we stop recording properly
   disposeHandler = new PEventsHandler(this);
@@ -69,7 +69,10 @@ void setup() {
   frameRate(FRAMERATE);
   cycles = new LinkedList<Cycle>();
   gestures = new LinkedList<Gesture>();
-  background(180);
+
+  setupGrayScott();
+
+  background(0);
   //image(srcImg, 0,0);
   next();
 
@@ -98,7 +101,7 @@ void setup() {
 
 void draw() 
 {
-  background(180);
+  background(0);
 
   if (nextwait > 0) 
   {
@@ -108,36 +111,62 @@ void draw()
 
   //srcImg.loadPixels();
 
+  drawGrayScott();
+
   int i = 0;
+
+  //gsImg.beginDraw();
+  //gsImg.pushMatrix();
+  //gsImg.scale(scaling);
+
+  imageMode(CORNERS);
+  blendMode(ADD);
+  image(gsImg, 0, 0, width, height);
 
   pushMatrix();
   scale(scaling);
 
-  for (Cycle w : cycles) 
-  {
-    i++;
+  ListIterator<Cycle> li = cycles.listIterator();
 
-    if (w.alive)
+  while (li.hasNext()) 
+  {
+    Cycle c = li.next();
+
+    if (c.alive)
     {
-      w.move(grid);
-    } else 
+      c.move(grid);
+      //c.draw();
+    } 
+    else 
     {
+      li.remove();
+      c.freeGrid(grid); // clear up used spaces
+      
       if (respawn)
       {
         addCycle(sketchMouseX()/scaling, sketchMouseY()/scaling);
       }
     }
 
-    w.draw();
+    //c.draw();
   } //end for all Cycles
 
+  //gsImg.popMatrix();
+  //gsImg.endDraw();
+
+  popMatrix();
+  
+
+  pushMatrix();
+  scale(scaling);
   for (Gesture g : gestures)
   {
     g.update();
     if (g.alive)
-      g.draw();
+    {
+      //g.draw();
+    }
   }
-
   popMatrix();
 
   if (grid.isFullySolid()) 
@@ -153,13 +182,13 @@ void next() {
 
   // imgMode = int(random(0,imgModes.length));
 
-  //background(0);
-  pushStyle();
-  noStroke();
-  fill(0, 255);
-  rectMode(CORNER);
-  rect(0, 0, width, height);
-  popStyle();
+  background(0);
+  //pushStyle();
+  //noStroke();
+  //fill(0, 120);
+  //rectMode(CORNER);
+  //rect(0, 0, width, height);
+  //popStyle();
 
   grid.clear();
   grid.setDims(width/scaling, height/scaling);

@@ -33,9 +33,9 @@ class Cycle
     setmaxLife(_maxLife);
 
     dir = millis()%4;
-    c = color(255);
-    deadColor = color(180, 100, 180);
-    overlayColor = color(255, 255, 180);
+    c = color(255,255);
+    deadColor = color(0);
+    //overlayColor = color(0);
     handedness = (random(1.0)>0.5) ? 1 : 3;
     alive = true;
 
@@ -70,7 +70,7 @@ class Cycle
     pathShape = createShape();
     pathShape.beginShape();
     pathShape.noFill();
-    pathShape.stroke(c);
+    pathShape.stroke(180,180,0);
     pathShape.strokeWeight(4);
 
     for (PVector v : path) 
@@ -136,8 +136,9 @@ class Cycle
           pathShape.setVertex(maxLife-1, newx, newy);
           
           
-        }
-      } else 
+        }       
+      } 
+      else 
       {
         alive = false;
         pathShape.setStroke(deadColor);
@@ -152,6 +153,7 @@ class Cycle
 
   void draw() 
   {
+    //pathShape.enableStyle();
     shape(pathShape);
   }
 

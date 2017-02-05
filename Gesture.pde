@@ -96,7 +96,7 @@ class Gesture
         //c = ( ((int(map(currentLife,0,maxLife,0,255)) >> 6) | 0x00FFFFFF) & c); // ???
         int alpha = (int)map(currentLife, 0, maxLife, 255, 0);
 
-        c = color(255, alpha);
+        c = color(255,0,0, alpha);
         pathShape.setStroke(c);
       } else
       {
@@ -113,13 +113,21 @@ class Gesture
     if (pathShape != null) 
       shape(pathShape);
 
-    noStroke();
-    fill(c);
-    rectMode(CENTER);
+    //noStroke();
+    //fill(c);
+    //rectMode(CENTER);
+    
+    for (PVector p : path)
+    {
+      //gs.clearRect((int)p.x, (int)p.y, 2, 2);
+    }
+    
+    /*
     for (PVector p : path)
     {
       rect(p.x, p.y, 1, 1);
     }
+    */
   }
 
   // end class Gesture

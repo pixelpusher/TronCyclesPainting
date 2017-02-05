@@ -56,8 +56,16 @@ class Grid
     boolean success = false;
 
     if (isValidCoords(x, y)) {
-      if ((cells[x][y]==SOLID) && (state==CLEAR)) solidcount--;
-      if ((cells[x][y]==CLEAR) && (state==SOLID)) solidcount++;
+      if ((cells[x][y]==SOLID) && (state==CLEAR)) {
+        // grayScott
+        //gs.clearRect(x, y, 2, 2);
+        solidcount--;
+      }
+      if ((cells[x][y]==CLEAR) && (state==SOLID)) {
+        solidcount++;
+        // grayScott
+        gs.setRect(x, y, 2, 2);
+      } 
       cells[x][y] = state;
       success = true;
     }
