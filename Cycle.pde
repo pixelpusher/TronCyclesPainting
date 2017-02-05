@@ -4,9 +4,6 @@
 
 class Cycle 
 {
-  // max number of PVectors in the path
-
-
   int x, y;
   int skip = 1;
   color c, deadColor, overlayColor;
@@ -68,10 +65,11 @@ class Cycle
 
     // Now make the PShape with those vertices
     pathShape = createShape();
+    
     pathShape.beginShape();
     pathShape.noFill();
-    pathShape.stroke(180,180,0);
-    pathShape.strokeWeight(4);
+    pathShape.stroke(255,200);
+    pathShape.strokeWeight(0.75);
 
     for (PVector v : path) 
     {
@@ -127,11 +125,14 @@ class Cycle
           g.set(newx, newy, Grid.SOLID);
           // update path
           path.get(currentLife).set(newx, newy);
+          float f = currentLife/(float)maxLife;
+          pathShape.setStroke(currentLife,color(255, (int)(255f*f*f)));
           
           for (int i=currentLife; i>0; i--)
           {
             PVector v = pathShape.getVertex(maxLife-i);
             pathShape.setVertex(maxLife-i-1,v);
+            
           }
           pathShape.setVertex(maxLife-1, newx, newy);
           
@@ -153,8 +154,7 @@ class Cycle
 
   void draw() 
   {
-    //pathShape.enableStyle();
-    shape(pathShape);
+    gsImg.shape(pathShape);
   }
 
   void drawOverlay(int rez) 

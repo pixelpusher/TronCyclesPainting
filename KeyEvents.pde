@@ -25,9 +25,15 @@ void keyPressed()
 
 void handleKeyPressed()  
 { 
+  if (!keyDown)
+  {
+    keyDown = true;
+  }
+  
   if (!keyHandled)
   {
     keyHandled = true;
+    println("handle key pressed " + sketchKey());
 
     switch (sketchKey()) {
 
@@ -47,13 +53,18 @@ void handleKeyPressed()
     case '=':
       break;
 
-    case '-': saveFrame();
+    case '-': 
+      saveFrame();
       break;
 
     case '\\': 
       break;
 
-    case ']': 
+    case ' ':
+      {
+        clearGs = true;
+        println("clear?");
+      }
       break;
 
     case '[': 
@@ -61,19 +72,15 @@ void handleKeyPressed()
 
 
     default: 
-      if (!keyDown)
-      {
-        keyDown = true;
-        long currentTime = sketchTime();
-        long timeInterval = currentTime - lastTime;
-        lastTime = currentTime;
+      long currentTime = sketchTime();
+      long timeInterval = currentTime - lastTime;
+      lastTime = currentTime;
 
-        intervals[index] = timeInterval/4;
-        index = (index + 1) % intervals.length;
-        Arrays.sort(intervals);
-        medianTime = intervals[(intervals.length-1)/2];  /// middle element
-        println("Median time: " + medianTime); 
-      }
+      intervals[index] = timeInterval/4;
+      index = (index + 1) % intervals.length;
+      Arrays.sort(intervals);
+      medianTime = intervals[(intervals.length-1)/2];  /// middle element
+      println("Median time: " + medianTime);
     }
   }
 }//end key pressed
@@ -88,4 +95,5 @@ void keyReleased()
 void handleKeyReleased()
 { 
   keyDown = false;
+  keyHandled = false; // what was this for??  
 }

@@ -23,7 +23,7 @@ final int [] dys = {
   0, -1, 0, 1
 };
 
-final int CYCLE_LIFETIME = 200;
+final int CYCLE_LIFETIME = 280;
 
 Grid grid;
 LinkedList<Cycle> cycles;
@@ -35,14 +35,14 @@ final int maxcycles = 120;
 int ncycles;
 boolean respawn = false; // respawn cycless automagically after dying
 
-int scaling = 4;
+int scaling = 16;
 int currentseed = 0;
 int nextwait = 0;
 
 static int myW=1280;
 static int myH=720;
 
-int minMove = 2;
+int minMove = 1;
 
 
 // handle shutdown properly and save recordings -- needs to be library, really
@@ -115,14 +115,26 @@ void draw()
 
   int i = 0;
 
-  //gsImg.beginDraw();
-  //gsImg.pushMatrix();
-  //gsImg.scale(scaling);
+  gsImg.beginDraw();
+  gsImg.pushMatrix();
+  gsImg.scale(scaling/gsScale);
+  for (Cycle c : cycles)
+    c.draw();
+  gsImg.popMatrix();
+  gsImg.endDraw();
 
   imageMode(CORNERS);
   blendMode(ADD);
   image(gsImg, 0, 0, width, height);
 
+  // draw flipped
+  if (true)
+  {
+    pushMatrix();
+    scale(-1, 1);
+    image(gsImg, 0, 0, -width, height);
+    popMatrix();
+  }
   pushMatrix();
   scale(scaling);
 
@@ -136,12 +148,11 @@ void draw()
     {
       c.move(grid);
       //c.draw();
-    } 
-    else 
+    } else 
     {
       li.remove();
       c.freeGrid(grid); // clear up used spaces
-      
+
       if (respawn)
       {
         addCycle(sketchMouseX()/scaling, sketchMouseY()/scaling);
@@ -155,7 +166,7 @@ void draw()
   //gsImg.endDraw();
 
   popMatrix();
-  
+
 
   pushMatrix();
   scale(scaling);

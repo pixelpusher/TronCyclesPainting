@@ -9,16 +9,19 @@ PatternedGrayScott gs;
 ToneMap toneMapFire, toneMapCool;
 
 PGraphics gsImg;
+boolean clearGs = false;
+
+int gsScale = 4;
 
 void setupGrayScott()
 {
   //gsImg = createImage(4*width/scaling, 4*height/scaling,ARGB);
-  gsImg = createGraphics(width/scaling, height/scaling); 
+  gsImg = createGraphics(gsScale*width/scaling, gsScale*height/scaling, P3D); 
   gsImg.beginDraw();
   gsImg.background(0);
   gsImg.endDraw();
 
-  gs=new PatternedGrayScott(width/scaling, height/scaling, false);
+  gs=new PatternedGrayScott(gsScale*width/scaling, gsScale*height/scaling, false);
   gs.setCoefficients(0.01, 0.06, 0.09, 0.06);
   // create a color gradient for 256 values
   ColorGradient grad=new ColorGradient();
@@ -31,7 +34,7 @@ void setupGrayScott()
   //grad.addColorAt(128, NamedColor.YELLOW);
   //grad.addColorAt(192, NamedColor.RED);
   //grad.addColorAt(255, TColor.newRGB(1f,0.3f,1f));
-  
+
   //monochrome
   grad.addColorAt(0, NamedColor.BLACK);
   grad.addColorAt(16, NamedColor.WHITE);
@@ -39,10 +42,10 @@ void setupGrayScott()
   grad.addColorAt(128, NamedColor.WHITE);
   grad.addColorAt(200, NamedColor.YELLOW);
   grad.addColorAt(230, NamedColor.BLACK);
-  
-  
 
-  
+
+
+
   // this gradient is used to map simulation values to colors
   // the first 2 parameters define the min/max values of the
   // input range (Gray-Scott produces values in the interval of 0.0 - 0.5)
@@ -64,23 +67,36 @@ void setupGrayScott()
 
 void drawGrayScott()
 {
-  // update the simulation a few time steps
-  for (int i=0; i<NUM_ITERATIONS; i++) {
-    gs.update(1);
+  if (clearGs) 
+  {
+    println("CLEAR");
+    clearGs = false;
+    gs.reset();
+
+    gsImg.beginDraw();
+    gsImg.background(0);
+    gsImg.endDraw();
+  } 
+  else
+  {
+    // update the simulation a few time steps
+    for (int i=0; i<NUM_ITERATIONS; i++) {
+      gs.update(1);
+    }
+    // read out the V result array
+    // and use tone map to render colours
+
+    ToneMap toneMap = toneMapFire;
+
+    //if ((millis()/1000) % 2 == 0) toneMap = toneMapCool;
+
+    gsImg.loadPixels();
+    toneMap.getToneMappedArray(gs.v, gsImg.pixels);
+    gsImg.updatePixels();
+    //imageMode(CORNERS);
+    //blendMode(REPLACE);
+    //image(gsImg,0,0,width,height);
   }
-  // read out the V result array
-  // and use tone map to render colours
-
-  ToneMap toneMap = toneMapFire;
-
-  //if ((millis()/1000) % 2 == 0) toneMap = toneMapCool;
-
-  gsImg.loadPixels();
-  toneMap.getToneMappedArray(gs.v, gsImg.pixels);
-  gsImg.updatePixels();
-  //imageMode(CORNERS);
-  //blendMode(REPLACE);
-  //image(gsImg,0,0,width,height);
 }
 
 
