@@ -16,13 +16,7 @@ long fakeTime  = 0; //"fake" time when we're rendering, in ms
 long lastTime = 0;
 float fakeFrameRate=30.0; // for rendering
 
-final int [] dxs = {
-  1, 0, -1, 0
-};
-final int [] dys = {
-  0, -1, 0, 1
-};
-
+// max number of PVectors in the path
 final int CYCLE_LIFETIME = 200;
 
 Grid grid;

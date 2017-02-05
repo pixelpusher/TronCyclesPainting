@@ -4,15 +4,22 @@
 
 class Cycle 
 {
-  // max number of PVectors in the path
-
-
   int x, y;
   int skip = 1;
   color c, deadColor, overlayColor;
   boolean alive;
+  TreeNode<GridCell> path;
+
+  // clockwise rotation of 1/2 pi intervals at radius 1
+  private final int [] dxs = {
+    0, 1, 0, -1
+  };
+  private final int [] dys = {
+    1, 0, -1, 0
+  };
 
   private ArrayList<PVector> path;
+  private TreeNode<GridCell> _path;
   private int ox, oy, dir, handedness;
   private int maxLife=0; // max number of ticks this 'lives' for
   private int currentLife=0; // current 'tick'
@@ -28,8 +35,9 @@ class Cycle
   //
   Cycle init(int _x, int _y, int _maxLife) {
     ox = x = _x;
-    oy = y = _y;
-
+    oy = y = _y; 
+    
+    _path = null;
     setmaxLife(_maxLife);
 
     dir = millis()%4;
@@ -47,6 +55,12 @@ class Cycle
     //skip = int(random(1,3));
 
     return this;
+  }
+
+  Cycle startPath(Grid g)
+  {
+    _path = g.startPath(x,y);
+    if (_path == null) alive = false; // picked a full path, just die
   }
 
   //
@@ -84,10 +98,14 @@ class Cycle
 
   void freeGrid(Grid g)
   {
+    // find which grid path has this path
+    // clear it 
+    
     for (PVector v : path) 
     {
       grid.set((int)v.x, (int)v.y, Grid.CLEAR);
     }
+    
   }
 
 
@@ -127,25 +145,22 @@ class Cycle
           g.set(newx, newy, Grid.SOLID);
           // update path
           path.get(currentLife).set(newx, newy);
-          
+
           for (int i=currentLife; i>0; i--)
           {
             PVector v = pathShape.getVertex(maxLife-i);
-            pathShape.setVertex(maxLife-i-1,v);
+            pathShape.setVertex(maxLife-i-1, v);
           }
           pathShape.setVertex(maxLife-1, newx, newy);
-          
-          
         }
       } else 
       {
         alive = false;
         pathShape.setStroke(deadColor);
       }
-    }
-    else {
+    } else {
       alive = false;
-        pathShape.setStroke(deadColor); // huh? got to rethink this
+      pathShape.setStroke(deadColor); // huh? got to rethink this
     }
   }// end move
 
