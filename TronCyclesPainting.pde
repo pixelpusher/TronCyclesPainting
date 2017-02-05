@@ -35,7 +35,7 @@ final int maxcycles = 120;
 int ncycles;
 boolean respawn = false; // respawn cycless automagically after dying
 
-int scaling = 16;
+int scaling = 4;
 int currentseed = 0;
 int nextwait = 0;
 
