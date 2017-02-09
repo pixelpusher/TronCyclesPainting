@@ -9,8 +9,6 @@
 
 import java.util.LinkedList;
 import java.util.ListIterator;
-import oscP5.*;
-import netP5.*;
 
 static int FRAMERATE = 30*2; 
 long startTime = 0;  // time sketch was started, for calculating recording times and keypresses
@@ -46,8 +44,6 @@ static int myH=720;
 
 int minMove = 1;
 
-OscP5 oscP5;
-
 // handle shutdown properly and save recordings -- needs to be library, really
 PEventsHandler disposeHandler;
 
@@ -63,9 +59,8 @@ void setup() {
   //fullScreen();
   smooth(2);
 
-  /* start oscP5, listening for incoming messages at port 12000 */
-  oscP5 = new OscP5(this, 12000);
-
+  setupOSC();
+  
   // needed to make sure we stop recording properly
   disposeHandler = new PEventsHandler(this);
 
