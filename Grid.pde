@@ -72,6 +72,16 @@ class Grid
     return success;
   }
 
+  boolean setRect(int x, int y, int w, int h, boolean state)
+  {
+    boolean result = true;
+    for (int yy = y; y < y+h; y++)
+      for (int xx = x; x < x+w; x++)
+        result = result && set(xx, yy, state);
+
+    return result;
+  }
+
   boolean get(int x, int y) 
   {
     if (isValidCoords(x, y))

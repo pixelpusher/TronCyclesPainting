@@ -207,6 +207,10 @@ void next() {
   background(0);
   grid.clear();
   grid.setDims(width/scaling, height/scaling);
+  
+  // top left
+  //grid.setRect();
+  
   cycles.clear();
 }
 
