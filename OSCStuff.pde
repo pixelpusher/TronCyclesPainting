@@ -36,6 +36,7 @@ public static final String GS_MODE_LOOSE = "gs_loose";
 public static final String GS_MODES[] = {GS_MODE_NORMAL, GS_MODE_LOOSE};
 
 public static final String UPDATE_SIM = "update";
+public static final String OSC_CYCLE_LIFE = "cyclelife";
 
 
 // TODO: for testing
@@ -54,22 +55,30 @@ public interface OscCommand
 
 void setImgMode(final String mode) throws IllegalArgumentException
 {
+ 
+  // todo: fix me
+  
   // mirror or ...
   switch(mode)
   {
   case MIRROR_IMAGE:
+   imageMode = mode;
     break;
 
   case RIGHT_IMAGE:
+   imageMode = mode;
     break;
 
   case LEFT_IMAGE:
+   imageMode = mode;
     break;
 
   case NO_IMAGE:
+   imageMode = mode;
     break;
 
   case NORMAL_IMAGE:
+   imageMode = MIRROR_IMAGE;
     break;
 
   default:
@@ -84,20 +93,14 @@ void setBrightness(float b) throws IllegalArgumentException
 
 void setColorMode(final String mode) throws IllegalArgumentException
 {
-  // firey or ...
-  switch(mode)
+  // set current color map for reaction-diffusion
+  ToneMap tmap = gsColors.get(mode);
+  if (tmap != null)
   {
-  case COLOR_MODE_FIREY:
-    break;
-
-
-  case COLOR_MODE_COOL:
-    break;
-
-  case COLOR_MODE_INVERT:
-    break;
-
-  default:
+    gsColorMap = tmap;
+    //println(mode + "::" + millis());
+  } else
+  {
     throw new IllegalArgumentException("Invalid color mode: " + mode);
   }
 }
@@ -181,19 +184,21 @@ void setupOSC()
     );
   }
 
-  /* TODO:
-   oscCommands.put(UPDATE_SIM, new OscCommand() { 
-   public void cmd() { 
-   updateSimulation = true;
-   ;
-   //println("osccmd: " + "update");
-   }
-   } 
-   );
-   */
+  oscCommands.put(UPDATE_SIM, new OscCommand() { 
+    public void cmd() { 
+      updateSimulation = true;
+    }
+  } 
+  );
 
   // start oscP5, listening for incoming messages at port 12000
   oscP5 = new OscP5(this, 12000);
+}
+
+
+void setCycleLifetime(int clife)
+{
+  cycleLifetime = clife;
 }
 
 
@@ -267,48 +272,74 @@ void oscEvent(OscMessage theOscMessage)
 
           msgtype = theOscMessage.typetag().charAt(index+1);
 
-          switch (message)
+          try
           {
-          case "imgmode":
-            String imgMode = theOscMessage.get(index+1).stringValue();
-            if (imgMode != null && imgMode != "")
-              runOSCCommand("img_"+imgMode);
-            break;
+            switch (message)
+            {
+            case "imgmode":
+              {
+                String imgMode = theOscMessage.get(index+1).stringValue();
+                if (imgMode != null && imgMode != "")
+                  runOSCCommand("img_"+imgMode);
+              }
+              break;
 
-          case "colormode":
-            String colorMode = theOscMessage.get(index+1).stringValue();  
-            if (colorMode != null && colorMode != "")
-              runOSCCommand("c_"+colorMode);
-            break;
+            case "colormode":
+              {
+                String colorMode = theOscMessage.get(index+1).stringValue();  
+                if (colorMode != null && colorMode != "")
+                  runOSCCommand("c_"+colorMode);
+              }
+              break;
 
-          case "gsmode":
-            String gsMode = theOscMessage.get(index+1).stringValue();
-            if (gsMode != null && gsMode != "")
-              runOSCCommand("gs_"+gsMode);
-            break;
+            case "gsmode":
+              {
+                String gsMode = theOscMessage.get(index+1).stringValue();
+                if (gsMode != null && gsMode != "")
+                  runOSCCommand("gs_"+gsMode);
+              }
+              break;
 
-          case "brightness":
-            float b = theOscMessage.get(index+1).floatValue(); 
-            setBrightness(b);
-            break;
+            case "brightness":
+              {
+                float b = theOscMessage.get(index+1).floatValue(); 
+                setBrightness(b);
+              }
+              break;
 
-          case "storm":
-            String storm = theOscMessage.get(index+1).stringValue();
-            if (storm != null && storm != "")
-              runOSCCommand("st_"+storm);
-            break;
+            case "storm":
+              {
+                String storm = theOscMessage.get(index+1).stringValue();
+                if (storm != null && storm != "")
+                  runOSCCommand("st_"+storm);
+              }
+              break;
 
-          case "update":
-            int state = theOscMessage.get(index+1).intValue();
-            if (state > 0) updateSimulation = true;
-            break;
+            case UPDATE_SIM:
+              {
+                int state = theOscMessage.get(index+1).intValue();
+                if (state > 0) runOSCCommand(UPDATE_SIM);
+              }
+              break;
 
+            case OSC_CYCLE_LIFE:
+              {
+                int state = theOscMessage.get(index+1).intValue();
+                if (state > 0) setCycleLifetime(state);
+              }
+              break;
 
-          default: 
-            println("Illegal OSC message:" + message);
-            throw new IllegalArgumentException("Invalid OSC message received: " + message);
+            default: 
+              println("Illegal OSC message:" + message);
+              throw new IllegalArgumentException("Invalid OSC message received: " + message);
+            } //end switch
+            // make sure we have named params, param pairs
+          } 
+          catch (IllegalArgumentException e)
+          {
+            System.err.println("IllegalArgumentException:" + e.getMessage());
+            e.printStackTrace();
           }
-          // make sure we have named params, param pairs
         }
       }
     }

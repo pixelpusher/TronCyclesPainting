@@ -6,7 +6,8 @@ import toxi.color.*;
 int NUM_ITERATIONS = 2;
 
 PatternedGrayScott gs;
-ToneMap toneMapFire, toneMapCool;
+
+HashMap<String,ToneMap> gsColors;
 
 PGraphics gsImg;
 boolean clearGs = false;
@@ -16,6 +17,7 @@ int gsScale = 4;
 // present modes for GrayScott coefficients, usually changed via OSC
 HashMap<String,GrayScottCoefficient> gsModes; 
 
+ToneMap gsColorMap;
 
 void setupGrayScott()
 {
@@ -29,10 +31,12 @@ void setupGrayScott()
   
   gsModes = new HashMap<String,GrayScottCoefficient>();
   gsModes.put(GS_MODE_NORMAL, new GrayScottCoefficient(0.01, 0.06, 0.09, 0.06));
-  gsModes.put(GS_MODE_LOOSE, new GrayScottCoefficient(0.08, 0.16, 0.11, 0.06));
-  
+  gsModes.put(GS_MODE_LOOSE, new GrayScottCoefficient(0.12, 0.16, 0.04, 0.06));
   
   gs.setCoefficients(0.01, 0.06, 0.09, 0.06); //    setCoefficients(float f, float k, float dU, float dV) 
+  
+  gsColors = new HashMap<String,ToneMap>();
+  
   // create a color gradient for 256 values
   ColorGradient grad=new ColorGradient();
   // NamedColors are preset colors, but any TColor can be added
@@ -53,31 +57,42 @@ void setupGrayScott()
   grad.addColorAt(200, NamedColor.YELLOW);
   grad.addColorAt(230, NamedColor.BLACK);
 
-
-
-
   // this gradient is used to map simulation values to colors
   // the first 2 parameters define the min/max values of the
   // input range (Gray-Scott produces values in the interval of 0.0 - 0.5)
   // setting the max = 0.33 increases the contrast
-  toneMapFire=new ToneMap(0, 0.43, grad);
 
-  ColorGradient grad2=new ColorGradient();
+  gsColorMap = new ToneMap(0, 0.43, grad);
+
+  gsColors.put(COLOR_MODE_FIREY, gsColorMap);
+
+  grad=new ColorGradient();
   // NamedColors are preset colors, but any TColor   
-  grad2.addColorAt(0, NamedColor.BLACK);
-  grad2.addColorAt(16, NamedColor.GRAY);
-  grad2.addColorAt(64, NamedColor.BLACK);
-  grad2.addColorAt(128, NamedColor.WHITE);
-  grad2.addColorAt(192, NamedColor.BLUE);
-  grad2.addColorAt(255, NamedColor.PURPLE);
+  grad.addColorAt(0, NamedColor.BLACK);
+  grad.addColorAt(16, NamedColor.GRAY);
+  grad.addColorAt(64, NamedColor.BLACK);
+  grad.addColorAt(128, NamedColor.WHITE);
+  grad.addColorAt(192, NamedColor.BLUE);
+  grad.addColorAt(255, NamedColor.PURPLE);
 
-  toneMapCool=new ToneMap(0, 0.43, grad2);
+  gsColors.put(COLOR_MODE_COOL, new ToneMap(0, 0.43, grad));
+  
+  grad=new ColorGradient();
+  // NamedColors are preset colors, but any TColor   
+  grad.addColorAt(0, NamedColor.WHITE);
+  grad.addColorAt(16, NamedColor.BLACK);
+  grad.addColorAt(64, NamedColor.GRAY);
+  grad.addColorAt(128, NamedColor.BLACK);
+  grad.addColorAt(192, NamedColor.YELLOW);
+  grad.addColorAt(255, NamedColor.GREEN);
+
+  gsColors.put(COLOR_MODE_INVERT, new ToneMap(0, 0.43, grad));  
 }
 
 
 void drawGrayScott()
 {
-  if (clearGs) 
+  if (clearGs)
   {
     println("CLEAR");
     clearGs = false;
@@ -96,12 +111,10 @@ void drawGrayScott()
     // read out the V result array
     // and use tone map to render colours
 
-    ToneMap toneMap = toneMapFire;
-
     //if ((millis()/1000) % 2 == 0) toneMap = toneMapCool;
 
     gsImg.loadPixels();
-    toneMap.getToneMappedArray(gs.v, gsImg.pixels);
+    gsColorMap.getToneMappedArray(gs.v, gsImg.pixels);
     gsImg.updatePixels();
     //imageMode(CORNERS);
     //blendMode(REPLACE);

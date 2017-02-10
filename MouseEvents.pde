@@ -70,7 +70,7 @@ void handleMousePressed()
     grid.set((int)_lastP.x, (int)_lastP.y, Grid.CLEAR);
 
     addCycle((int)_lastP.x, (int)_lastP.y);
-    gestures.push(new Gesture((int)_lastP.x, (int)_lastP.y, CYCLE_LIFETIME*4)); // first is always current
+    gestures.push(new Gesture((int)_lastP.x, (int)_lastP.y, Cycle.MAX_CYCLE_LIFETIME*4)); // first is always current
   }
 
 

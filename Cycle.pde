@@ -4,6 +4,7 @@
 
 class Cycle 
 {
+  static final int MAX_CYCLE_LIFETIME = 280;
   int x, y;
   int skip = 1;
   color c, deadColor, overlayColor;
@@ -26,7 +27,7 @@ class Cycle
   Cycle init(int _x, int _y, int _maxLife) {
     ox = x = _x;
     oy = y = _y;
-
+    
     setmaxLife(_maxLife);
 
     dir = millis()%4;
@@ -53,16 +54,16 @@ class Cycle
   {
     i = max(i, 1); // less than 1 is dumb
     maxLife = i;
-    currentLife = 0; // reset elapsed time count
-
-    path = null; // force garbage collection...
+    currentLife = 0; // reset elapsed time count  
     path = new ArrayList<PVector>(maxLife);
-
-    while (path.size() <maxLife)
+    while (path.size() < maxLife)
     {
       path.add(new PVector(ox, oy));
     }
-
+    //for (PVector p : path)
+    //{
+    //  p.set(ox, oy);
+    //}
     // Now make the PShape with those vertices
     pathShape = createShape();
     

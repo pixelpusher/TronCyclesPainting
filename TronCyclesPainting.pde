@@ -18,6 +18,7 @@ float fakeFrameRate=30.0; // for rendering
 
 boolean updateSimulation = true; // update simulation - used in tidal (OSC)
 boolean updateAlways = false; // set to true if not using tidal!
+String imageMode = MIRROR_IMAGE;
 
 final int [] dxs = {
   1, 0, -1, 0
@@ -26,7 +27,7 @@ final int [] dys = {
   0, -1, 0, 1
 };
 
-final int CYCLE_LIFETIME = 280;
+int cycleLifetime = Cycle.MAX_CYCLE_LIFETIME;
 
 Grid grid;
 LinkedList<Cycle> cycles;
@@ -34,7 +35,7 @@ LinkedList<Gesture> gestures;
 
 
 final int mincycles = 1;
-final int maxcycles = 120;
+final int maxcycles = 20;
 int ncycles;
 boolean respawn = false; // respawn cycless automagically after dying
 
@@ -61,8 +62,6 @@ void settings()
 void setup() {
   //fullScreen();
   smooth(2);
-
-  setupOSC();
 
   // needed to make sure we stop recording properly
   disposeHandler = new PEventsHandler(this);
@@ -100,6 +99,9 @@ void setup() {
     loadRecording(); // load saved key and mouse presses
     println("...");
   }
+
+  // do this last, otherwise nullpointer errors...
+  setupOSC();
 } // end setup
 
 
@@ -127,18 +129,22 @@ void draw()
   gsImg.popMatrix();
   gsImg.endDraw();
 
-  imageMode(CORNERS);
-  blendMode(ADD);
-  image(gsImg, 0, 0, width, height);
 
-  // draw flipped
-  if (true)
+  if (imageMode == LEFT_IMAGE || imageMode == MIRROR_IMAGE)
+  {
+    imageMode(CORNERS);
+    blendMode(ADD);
+    image(gsImg, 0, 0, width, height);
+  }
+
+  if (imageMode == RIGHT_IMAGE || imageMode == MIRROR_IMAGE)
   {
     pushMatrix();
     scale(-1, 1);
     image(gsImg, 0, 0, -width, height);
     popMatrix();
   }
+
   if (updateSimulation || updateAlways)
   {
     pushMatrix();
@@ -198,36 +204,17 @@ void draw()
 void next() {
   randomSeed(currentseed++);
   float burnone = random(1.0);
-
-  // imgMode = int(random(0,imgModes.length));
-
   background(0);
-  //pushStyle();
-  //noStroke();
-  //fill(0, 120);
-  //rectMode(CORNER);
-  //rect(0, 0, width, height);
-  //popStyle();
-
   grid.clear();
   grid.setDims(width/scaling, height/scaling);
   cycles.clear();
-  /*
-  ncycles = (int)random(mincycles, maxcycles);
-   for (int i=0; i<ncycles; i++) {
-   int x = (int)random(grid.getWidth());
-   int y = (int)random(grid.getHeight());
-   Cycle w = new Cycle(x, y, CYCLE_LIFETIME);
-   cycles.add(w);
-   grid.set(x, y, Grid.SOLID);
-   }
-   */
 }
 
 
 Cycle addCycle(int x, int y)
 {
-  Cycle w = new Cycle(x, y, CYCLE_LIFETIME);
+  Cycle w = new Cycle(x, y, cycleLifetime);
+
   if (cycles.size() >= maxcycles)
   {
     Cycle first = cycles.removeFirst();
