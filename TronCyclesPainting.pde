@@ -16,6 +16,9 @@ long fakeTime  = 0; //"fake" time when we're rendering, in ms
 long lastTime = 0;
 float fakeFrameRate=30.0; // for rendering
 
+boolean updateSimulation = true; // update simulation - used in tidal (OSC)
+boolean updateAlways = false; // set to true if not using tidal!
+
 final int [] dxs = {
   1, 0, -1, 0
 };
@@ -60,7 +63,7 @@ void setup() {
   smooth(2);
 
   setupOSC();
-  
+
   // needed to make sure we stop recording properly
   disposeHandler = new PEventsHandler(this);
 
@@ -111,8 +114,8 @@ void draw()
   }
 
   //srcImg.loadPixels();
-
-  drawGrayScott();
+  if (updateSimulation)
+    drawGrayScott();
 
   int i = 0;
 
@@ -136,38 +139,42 @@ void draw()
     image(gsImg, 0, 0, -width, height);
     popMatrix();
   }
-  pushMatrix();
-  scale(scaling);
-
-  ListIterator<Cycle> li = cycles.listIterator();
-
-  while (li.hasNext()) 
+  if (updateSimulation || updateAlways)
   {
-    Cycle c = li.next();
+    pushMatrix();
+    scale(scaling);
 
-    if (c.alive)
-    {
-      c.move(grid);
-      //c.draw();
-    } else 
-    {
-      li.remove();
-      c.freeGrid(grid); // clear up used spaces
 
-      if (respawn)
+    ListIterator<Cycle> li = cycles.listIterator();
+
+    while (li.hasNext()) 
+    {
+      Cycle c = li.next();
+
+      if (c.alive)
       {
-        addCycle(sketchMouseX()/scaling, sketchMouseY()/scaling);
+        c.move(grid);
+        //c.draw();
+      } else 
+      {
+        li.remove();
+        c.freeGrid(grid); // clear up used spaces
+
+        if (respawn)
+        {
+          addCycle(sketchMouseX()/scaling, sketchMouseY()/scaling);
+        }
       }
-    }
 
-    //c.draw();
-  } //end for all Cycles
+      //c.draw();
+    } //end for all Cycles
 
-  //gsImg.popMatrix();
-  //gsImg.endDraw();
+    //gsImg.popMatrix();
+    //gsImg.endDraw();
 
-  popMatrix();
-
+    popMatrix();
+    updateSimulation = false;
+  }
 
   pushMatrix();
   scale(scaling);

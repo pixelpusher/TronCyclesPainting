@@ -13,6 +13,10 @@ boolean clearGs = false;
 
 int gsScale = 4;
 
+// present modes for GrayScott coefficients, usually changed via OSC
+HashMap<String,GrayScottCoefficient> gsModes; 
+
+
 void setupGrayScott()
 {
   //gsImg = createImage(4*width/scaling, 4*height/scaling,ARGB);
@@ -22,7 +26,13 @@ void setupGrayScott()
   gsImg.endDraw();
 
   gs=new PatternedGrayScott(gsScale*width/scaling, gsScale*height/scaling, false);
-  gs.setCoefficients(0.01, 0.06, 0.09, 0.06);
+  
+  gsModes = new HashMap<String,GrayScottCoefficient>();
+  gsModes.put(GS_MODE_NORMAL, new GrayScottCoefficient(0.01, 0.06, 0.09, 0.06));
+  gsModes.put(GS_MODE_LOOSE, new GrayScottCoefficient(0.08, 0.16, 0.11, 0.06));
+  
+  
+  gs.setCoefficients(0.01, 0.06, 0.09, 0.06); //    setCoefficients(float f, float k, float dU, float dV) 
   // create a color gradient for 256 values
   ColorGradient grad=new ColorGradient();
   // NamedColors are preset colors, but any TColor can be added
@@ -107,7 +117,16 @@ class PatternedGrayScott extends GrayScott {
   public PatternedGrayScott(int w, int h, boolean tiling) {
     super(w, h, tiling);
   }
-
+  
+  //
+  // convenience function
+  //
+  public void setCoefficients(GrayScottCoefficient gsc)
+  {
+    this.setCoefficients(gsc.f, gsc.k, gsc.du, gsc.dv);
+  }
+  
+  
   // we use the x position to divide the simulation space into columns
   // of alternating behaviors
   public float getFCoeffAt(int x, int y) {
@@ -136,3 +155,19 @@ class PatternedGrayScott extends GrayScott {
     }
   }
 }
+
+//
+// for storing present modes
+//
+public class GrayScottCoefficient extends Object
+{
+  public float f,k,du,dv;
+
+  GrayScottCoefficient(float _f,float _k, float _du, float _dv)
+  {
+    f = _f;
+    k = _k;
+    du = _du;
+    dv = _dv;
+  }
+} // class GrayScottCoefficient
