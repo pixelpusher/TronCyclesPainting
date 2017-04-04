@@ -50,11 +50,12 @@ void setupGrayScott()
   //grad.addColorAt(255, TColor.newRGB(1f,0.3f,1f));
 
   //monochrome
-  grad.addColorAt(0, NamedColor.BLACK);
-  grad.addColorAt(16, NamedColor.WHITE);
+  grad.addColorAt(0, TColor.newRGB(0f,0f,0f));
+  grad.addColorAt(8, TColor.newRGB(0.2f,0.3f,0.2f));
+  grad.addColorAt(36, TColor.newRGB(0.2f,0.8f,0.2f));
   grad.addColorAt(64, NamedColor.BLACK);
-  grad.addColorAt(128, NamedColor.WHITE);
-  grad.addColorAt(200, NamedColor.YELLOW);
+  grad.addColorAt(128, NamedColor.PINK);
+  grad.addColorAt(200, NamedColor.GREEN);
   grad.addColorAt(230, NamedColor.BLACK);
 
   // this gradient is used to map simulation values to colors
@@ -72,7 +73,7 @@ void setupGrayScott()
   grad.addColorAt(16, NamedColor.GRAY);
   grad.addColorAt(64, NamedColor.BLACK);
   grad.addColorAt(128, NamedColor.WHITE);
-  grad.addColorAt(192, NamedColor.BLUE);
+  grad.addColorAt(192, TColor.newRGB(0.2f,0.3f,0.8f));
   grad.addColorAt(255, NamedColor.PURPLE);
 
   gsColors.put(COLOR_MODE_COOL, new ToneMap(0, 0.43, grad));
@@ -82,8 +83,8 @@ void setupGrayScott()
   grad.addColorAt(0, NamedColor.WHITE);
   grad.addColorAt(16, NamedColor.BLACK);
   grad.addColorAt(64, NamedColor.GRAY);
-  grad.addColorAt(128, NamedColor.BLACK);
-  grad.addColorAt(192, NamedColor.YELLOW);
+  grad.addColorAt(128, NamedColor.GREEN);
+  grad.addColorAt(192, NamedColor.BLUE);
   grad.addColorAt(255, NamedColor.GREEN);
 
   gsColors.put(COLOR_MODE_INVERT, new ToneMap(0, 0.43, grad));  

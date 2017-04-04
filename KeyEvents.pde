@@ -19,7 +19,8 @@ char sketchKey()
 
 void keyPressed()
 {
-  if (!rendering) jtKeyEvents.add(new jtKeyEvent(key, "pressed"));  
+  //FIXME FOR APP
+  // if (!rendering) jtKeyEvents.add(new jtKeyEvent(key, "pressed"));  
   handleKeyPressed();
 }
 
@@ -45,7 +46,8 @@ void handleKeyPressed()
       if (!rendering) 
       {
         rendering = true;
-        saveEvents();
+        // FIXME: FOR APPLICATION
+        // saveEvents();
       }
       break;
 
@@ -88,7 +90,8 @@ void handleKeyPressed()
 
 void keyReleased()
 {
-  if (!rendering) jtKeyEvents.add(new jtKeyEvent(key, "released"));
+  // FIXME FOR APP
+  // if (!rendering) jtKeyEvents.add(new jtKeyEvent(key, "released"));
   handleKeyReleased();
 }
 

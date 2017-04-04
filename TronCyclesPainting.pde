@@ -16,8 +16,8 @@ long fakeTime  = 0; //"fake" time when we're rendering, in ms
 long lastTime = 0;
 float fakeFrameRate=30.0; // for rendering
 
-boolean updateSimulation = true; // update simulation - used in tidal (OSC)
-boolean updateAlways = false; // set to true if not using tidal!
+boolean updateSimulation = false; // update simulation - used in tidal (OSC)
+boolean updateAlways = true; // set to true if not using tidal!
 String imageMode = MIRROR_IMAGE;
 
 final int [] dxs = {
@@ -35,7 +35,7 @@ LinkedList<Gesture> gestures;
 
 
 final int mincycles = 1;
-final int maxcycles = 20;
+final int maxcycles = 10;
 int ncycles;
 boolean respawn = false; // respawn cycless automagically after dying
 
@@ -43,8 +43,8 @@ int scaling = 16;
 int currentseed = 0;
 int nextwait = 0;
 
-static int myW=1280;
-static int myH=720;
+static int myW=1920;
+static int myH=1080;
 
 int minMove = 1;
 
@@ -53,15 +53,17 @@ PEventsHandler disposeHandler;
 
 //PGraphics cycleImageBuffer;
 
-void settings()
-{
-  //size(srcImg.width,srcImg.height);
-  size(myW, myH, P3D);
-}
+//void settings()
+//{
+//  //size(srcImg.width,srcImg.height);
+//  size(myW, myH, P3D);
+//}
 
 void setup() {
-  //fullScreen();
+  fullScreen(P3D,1);
   smooth(2);
+
+  //size(1280,720,P3D);
 
   // needed to make sure we stop recording properly
   disposeHandler = new PEventsHandler(this);
@@ -116,7 +118,7 @@ void draw()
   }
 
   //srcImg.loadPixels();
-  if (updateSimulation)
+  if (updateSimulation || updateAlways)
     drawGrayScott();
 
   int i = 0;
@@ -141,12 +143,20 @@ void draw()
   {
     pushMatrix();
     scale(-1, 1);
+    imageMode(CORNERS);
+    blendMode(ADD);
     image(gsImg, 0, 0, -width, height);
     popMatrix();
   }
 
   if (updateSimulation || updateAlways)
   {
+    /*
+    if (frameCount % 20 == 0)
+    {
+     addCycle(int(random(myW)/scaling), int(random(myH)/scaling)); 
+    }
+    */
     pushMatrix();
     scale(scaling);
 
@@ -174,6 +184,7 @@ void draw()
 
       //c.draw();
     } //end for all Cycles
+    
 
     //gsImg.popMatrix();
     //gsImg.endDraw();
