@@ -26,7 +26,7 @@ final int [] dys = {
   0, -1, 0, 1
 };
 
-final int CYCLE_LIFETIME = 40;
+final int CYCLE_LIFETIME = 16;
 
 Grid grid;
 LinkedList<Cycle> cycles;
@@ -38,12 +38,12 @@ final int maxcycles = 120;
 int ncycles;
 boolean respawn = false; // respawn cycless automagically after dying
 
-int scaling = 4;
+int scaling = 6;
 int currentseed = 0;
 int nextwait = 0;
 
-static int myW=1280;
-static int myH=720;
+static final int myW=2048;
+static final int myH=1024;
 
 int minMove = 1;
 
@@ -61,10 +61,12 @@ void settings()
 
 void setup() 
 {
-  //fullScreen();
+  //size(myW, myH, P3D);
+  //fullScreen(P3D);
+  pixelDensity(displayDensity());
   walkData = loadAllData();
   currentDataRow = 0;
-  
+
   smooth(2);
 
   // needed to make sure we stop recording properly
@@ -94,10 +96,9 @@ void setup()
 
     loadRecording(); // load saved key and mouse presses
     println("...");
-    
+
     // TODO: 
     // save frame to proper folder!
-    
   }
 } // end setup
 
@@ -113,14 +114,14 @@ void draw()
   //}
 
   //srcImg.loadPixels();
-  
+
   drawGrayScott();
 
   int i = 0;
 
   gsImg.beginDraw();
   gsImg.pushMatrix();
-  gsImg.scale(scaling/gsScale);
+  gsImg.scale(scaling);
   for (Cycle c : cycles)
     c.draw();
   gsImg.popMatrix();
@@ -164,53 +165,59 @@ void draw()
 
     //c.draw();
   } //end for all Cycles
-  
-  fill(255,255,0);
+
+  //if (running)
+  //{
+  //  for (int ii=0; ii < walkData.length; ii++)
+  //  {
+  //    float[] dataRow = walkData[ii];
+  //    addCycle(int(dataRow[0]/scaling), int(dataRow[1]/scaling));
+  //  }
+  //  running = false;
+  //}
+  popMatrix();
+  fill(255, 255, 0);
   noStroke();
   ellipseMode(CENTER);
   for (int ii=0; ii < walkData.length; ii++)
   {
     float[] dataRow = walkData[ii];
-    ellipse(int(dataRow[0]/scaling), int(dataRow[1]/scaling), 1,1);
-    
+    //float mq135 = exp(dataRow[2]+1)/exp(2);
+    float mq135 = log(dataRow[2]);
+    ellipse(int(dataRow[0]), int(dataRow[1]), mq135*scaling*2,mq135*scaling*2);
+
     //gs.clearRect(int(gsScale*dataRow[0]/scaling), int(gsScale*dataRow[1]/scaling), 3,3);
-    
-    gs.clearRect(int(gsScale*dataRow[0]/scaling), int(gsScale*dataRow[1]/scaling), 4,4, dataRow[2],0);
-    
-    //gs.setCurrentUAt(int(gsScale*dataRow[0]/scaling), int(gsScale*dataRow[1]/scaling),0);
-    
-    
-  }
 
-  popMatrix();
-
-//  pushMatrix();
-//  scale(scaling);
-  for (Gesture g : gestures)
-  {
-    g.update();
+    gs.clearRect(int(dataRow[0]), int(dataRow[1]), (int)(mq135*gsScale*8), (int)(mq135*gsScale*8), mq135/5, 0.0);
   }
-//  popMatrix();
 
 
   if (running && (sketchTime() - lastTime > NextDataPointInterval))
   {
     lastTime = sketchTime();
     float[] dataRow = walkData[currentDataRow];
-    
+
     addCycle(int(dataRow[0]/scaling), int(dataRow[1]/scaling));
     dataRow = walkData[walkData.length-1-currentDataRow];
     addCycle(int(dataRow[0]/scaling), int(dataRow[1]/scaling));
-    
+
     currentDataRow++;
     // stop if we're out of points
     if (currentDataRow >= walkData.length) 
     {
       currentDataRow = 0;
       //running = false;
-    } 
+    }
   }
-  
+
+
+  //  pushMatrix();
+  //  scale(scaling);
+  for (Gesture g : gestures)
+  {
+    g.update();
+  }
+  //  popMatrix();
 
   //if (grid.isFullySolid()) 
   //{

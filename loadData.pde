@@ -6,10 +6,10 @@ int currentDataRow = -1;
  //
  float[] coordinateToCartesian(float lat, float lon)
  {
-    float x = width * (0.125 + 0.75 * lon / PI);
-    float y = height * (0.125 + 0.75*log((1f + sin(lat))/(1f - sin(lat))) / (2 * TWO_PI)); 
+    float x = width * (0.125 + 0.5 * lon / PI);
+    float y = height * (0.33 + 0.67*log((1f + sin(lat))/(1f - sin(lat))) / (2 * TWO_PI)); 
     float[] val = {x,y};
-    println(val);
+    //println(val);
     return val;
  }
  
@@ -56,7 +56,7 @@ float[][] loadAllData()
     theData[i][0] = latLon[0];
     theData[i][1] = latLon[1];
     theData[i][2] = map(row.getFloat("MQ135 value"), MQ135Extent[0], MQ135Extent[1],0,1);
-    
+    println(theData[i][2]);
     i++;
   }
   return theData;

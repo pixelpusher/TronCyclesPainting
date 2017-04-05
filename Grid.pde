@@ -64,7 +64,8 @@ class Grid
       if ((cells[x][y]==CLEAR) && (state==SOLID)) {
         solidcount++;
         // grayScott
-        gs.setRect(gsScale*x, gsScale*y, scaling/gsScale, scaling/gsScale);
+        //gs.setRect(scaling*x/gsScale, scaling*y/gsScale, gsScale, gsScale);
+        gs.setRect(scaling*x, scaling*y, gsScale, gsScale);
       } 
       cells[x][y] = state;
       success = true;
