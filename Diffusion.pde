@@ -3,7 +3,7 @@ import toxi.math.*;
 
 import toxi.color.*;
 
-int NUM_ITERATIONS = 2;
+int NUM_ITERATIONS = 1;
 
 PatternedGrayScott gs;
 ToneMap toneMapFire, toneMapCool;
@@ -11,7 +11,7 @@ ToneMap toneMapFire, toneMapCool;
 PGraphics gsImg;
 boolean clearGs = false;
 
-int gsScale = 4;
+int gsScale = 2;
 
 void setupGrayScott()
 {
@@ -22,7 +22,9 @@ void setupGrayScott()
   gsImg.endDraw();
 
   gs=new PatternedGrayScott(gsScale*width/scaling, gsScale*height/scaling, false);
-  gs.setCoefficients(0.01, 0.06, 0.09, 0.06);
+  //melty
+  //gs.setCoefficients(0.02, 0.07, 0.12, 0.02);
+  gs.setCoefficients(0.02, 0.07, 0.12, 0.08);
   // create a color gradient for 256 values
   ColorGradient grad=new ColorGradient();
   // NamedColors are preset colors, but any TColor can be added
@@ -76,8 +78,7 @@ void drawGrayScott()
     gsImg.beginDraw();
     gsImg.background(0);
     gsImg.endDraw();
-  } 
-  else
+  } else
   {
     // update the simulation a few time steps
     for (int i=0; i<NUM_ITERATIONS; i++) {
@@ -132,6 +133,20 @@ class PatternedGrayScott extends GrayScott {
         int idx = yy * width + xx;
         uu[idx] = 1f;
         vv[idx] = 0f;
+      }
+    }
+  }
+
+  public void clearRect(int x, int y, int w, int h, float uuu, float vvv) {
+    int mix = MathUtils.clip(x - w / 2, 0, width);
+    int max = MathUtils.clip(x + w / 2, 0, width);
+    int miy = MathUtils.clip(y - h / 2, 0, height);
+    int may = MathUtils.clip(y + h / 2, 0, height);
+    for (int yy = miy; yy < may; yy++) {
+      for (int xx = mix; xx < max; xx++) {
+        int idx = yy * width + xx;
+        uu[idx] = uuu;
+        vv[idx] = vvv;
       }
     }
   }

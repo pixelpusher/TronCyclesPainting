@@ -19,7 +19,7 @@ char sketchKey()
 
 void keyPressed()
 {
-  if (!rendering) jtKeyEvents.add(new jtKeyEvent(key, "pressed"));  
+  //if (!rendering) jtKeyEvents.add(new jtKeyEvent(key, "pressed"));  
   handleKeyPressed();
 }
 
@@ -88,7 +88,7 @@ void handleKeyPressed()
 
 void keyReleased()
 {
-  if (!rendering) jtKeyEvents.add(new jtKeyEvent(key, "released"));
+  //if (!rendering) jtKeyEvents.add(new jtKeyEvent(key, "released"));
   handleKeyReleased();
 }
 

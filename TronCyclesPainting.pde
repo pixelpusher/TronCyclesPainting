@@ -10,12 +10,15 @@
 import java.util.LinkedList;
 import java.util.ListIterator;
 
-static int FRAMERATE = 30*2; 
+static final int FRAMERATE = 30*2; 
 long startTime = 0;  // time sketch was started, for calculating recording times and keypresses
 long fakeTime  = 0; //"fake" time when we're rendering, in ms
-long lastTime = 0;
-float fakeFrameRate=30.0; // for rendering
+long lastTime = 0; // last time we added a cycle
+final float fakeFrameRate=30.0; // for rendering
+final long NextDataPointInterval = 40; // in ms, time between advancing data points
+boolean running = true;  // advance data points until false
 
+// directions for cycle movement
 final int [] dxs = {
   1, 0, -1, 0
 };
@@ -23,7 +26,7 @@ final int [] dys = {
   0, -1, 0, 1
 };
 
-final int CYCLE_LIFETIME = 280;
+final int CYCLE_LIFETIME = 40;
 
 Grid grid;
 LinkedList<Cycle> cycles;
@@ -35,7 +38,7 @@ final int maxcycles = 120;
 int ncycles;
 boolean respawn = false; // respawn cycless automagically after dying
 
-int scaling = 16;
+int scaling = 4;
 int currentseed = 0;
 int nextwait = 0;
 
@@ -56,8 +59,12 @@ void settings()
   size(myW, myH, P3D);
 }
 
-void setup() {
+void setup() 
+{
   //fullScreen();
+  walkData = loadAllData();
+  currentDataRow = 0;
+  
   smooth(2);
 
   // needed to make sure we stop recording properly
@@ -85,16 +92,12 @@ void setup() {
     String sString = "cycles_" + year() + month() + day() + "_" + hour() + "-" + minute() + "-" + second()+".mov";
     println("rendering TO DISK: " + sString);
 
-    /*
-      mm = new GSMovieMaker(this, width, height, "sString.ogg", GSMovieMaker.THEORA, GSMovieMaker.HIGH, (int)fakeFrameRate);
-     mm.start();
-     */
-
-    /*mm = new MovieMaker(this, width, height, sString,
-     (int)frameRate, MovieMaker.JPEG, MovieMaker.HIGH);
-     */
     loadRecording(); // load saved key and mouse presses
     println("...");
+    
+    // TODO: 
+    // save frame to proper folder!
+    
   }
 } // end setup
 
@@ -103,14 +106,14 @@ void draw()
 {
   background(0);
 
-  if (nextwait > 0) 
-  {
-    if (--nextwait <= 0) next();
-    else return;
-  }
+  //if (nextwait > 0) 
+  //{
+  //  if (--nextwait <= 0) next();
+  //  else return;
+  //}
 
   //srcImg.loadPixels();
-
+  
   drawGrayScott();
 
   int i = 0;
@@ -128,7 +131,7 @@ void draw()
   image(gsImg, 0, 0, width, height);
 
   // draw flipped
-  if (true)
+  if (false)
   {
     pushMatrix();
     scale(-1, 1);
@@ -161,29 +164,58 @@ void draw()
 
     //c.draw();
   } //end for all Cycles
-
-  //gsImg.popMatrix();
-  //gsImg.endDraw();
+  
+  fill(255,255,0);
+  noStroke();
+  ellipseMode(CENTER);
+  for (int ii=0; ii < walkData.length; ii++)
+  {
+    float[] dataRow = walkData[ii];
+    ellipse(int(dataRow[0]/scaling), int(dataRow[1]/scaling), 1,1);
+    
+    //gs.clearRect(int(gsScale*dataRow[0]/scaling), int(gsScale*dataRow[1]/scaling), 3,3);
+    
+    gs.clearRect(int(gsScale*dataRow[0]/scaling), int(gsScale*dataRow[1]/scaling), 4,4, dataRow[2],0);
+    
+    //gs.setCurrentUAt(int(gsScale*dataRow[0]/scaling), int(gsScale*dataRow[1]/scaling),0);
+    
+    
+  }
 
   popMatrix();
 
-
-  pushMatrix();
-  scale(scaling);
+//  pushMatrix();
+//  scale(scaling);
   for (Gesture g : gestures)
   {
     g.update();
-    if (g.alive)
-    {
-      //g.draw();
-    }
   }
-  popMatrix();
+//  popMatrix();
 
-  if (grid.isFullySolid()) 
+
+  if (running && (sketchTime() - lastTime > NextDataPointInterval))
   {
-    nextwait = 2*30;
+    lastTime = sketchTime();
+    float[] dataRow = walkData[currentDataRow];
+    
+    addCycle(int(dataRow[0]/scaling), int(dataRow[1]/scaling));
+    dataRow = walkData[walkData.length-1-currentDataRow];
+    addCycle(int(dataRow[0]/scaling), int(dataRow[1]/scaling));
+    
+    currentDataRow++;
+    // stop if we're out of points
+    if (currentDataRow >= walkData.length) 
+    {
+      currentDataRow = 0;
+      //running = false;
+    } 
   }
+  
+
+  //if (grid.isFullySolid()) 
+  //{
+  //  nextwait = 2*30;
+  //}
 }
 
 

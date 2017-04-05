@@ -51,7 +51,7 @@ int sketchpMouseY()
 
 void mousePressed()
 {
-  if (!rendering) jtMouseEvents.add(new jtMouseEvent(mouseX, pmouseX, mouseY, pmouseY, "pressed"));
+  //if (!rendering) jtMouseEvents.add(new jtMouseEvent(mouseX, pmouseX, mouseY, pmouseY, "pressed"));
   // check for key down - if special key, draw circular slider to select gesture
 
   handleMousePressed();
@@ -81,7 +81,7 @@ void handleMousePressed()
 
 void mouseDragged()
 {
-  if (!rendering) jtMouseEvents.add(new jtMouseEvent(mouseX, pmouseX, mouseY, pmouseY, "dragged"));
+  //if (!rendering) jtMouseEvents.add(new jtMouseEvent(mouseX, pmouseX, mouseY, pmouseY, "dragged"));
   handleMouseDragged();
 }
 
@@ -109,7 +109,7 @@ void handleMouseDragged()
 
 void mouseMoved()
 {
-  if (!rendering) jtMouseEvents.add(new jtMouseEvent(mouseX, pmouseX, mouseY, pmouseY, "moved"));
+  //if (!rendering) jtMouseEvents.add(new jtMouseEvent(mouseX, pmouseX, mouseY, pmouseY, "moved"));
   handleMouseMoved();
 }
 
@@ -121,7 +121,7 @@ void handleMouseMoved()
 
 void mouseReleased()
 {
-  if (!rendering) jtMouseEvents.add(new jtMouseEvent(mouseX, pmouseX, mouseY, pmouseY, "released"));
+  //if (!rendering) jtMouseEvents.add(new jtMouseEvent(mouseX, pmouseX, mouseY, pmouseY, "released"));
   handleMouseReleased();
 }  
 

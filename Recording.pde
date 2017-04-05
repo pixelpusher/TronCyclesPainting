@@ -1,5 +1,8 @@
-static final String mouseEventsFile = "mouseEvents.txt";
-static final String jtKeyEventsFile = "jtKeyEvents.txt";
+final String mouseEventsFileNamePrefix = "MouseEvents";
+final String keyEventsFileNamePrefix = "KeyEvents";
+final String SavedMouseEventsFileToLoad = "MouseEvents.txt";
+final String SavedKeyEventsFileToLoad = "KeyEvents.txt";
+
 
 boolean rendering = false; // make this true to render to a movie file
 
@@ -18,8 +21,8 @@ void stopRecording()
 {
   if (!rendering) 
   {
-    jtKeyEvents.add(new jtKeyEvent(' ', "pressed"));
-    saveEvents();
+   // jtKeyEvents.add(new jtKeyEvent(' ', "pressed"));
+   // saveEvents();
   }
 }
 //////////////////////////////////////
@@ -37,7 +40,7 @@ void saveEvents()
   {
     outStrings[mit.nextIndex()+1] = ((jtMouseEvent)mit.next()).toString();
   }   
-  String sString = "jtMouseEvents_" + year() + month() + day() + "_" + hour() + "-" + minute() + "-" + second()+".txt";
+  String sString = mouseEventsFileNamePrefix + "_" + year() + month() + day() + "_" + hour() + "-" + minute() + "-" + second()+".txt";
   saveStrings(sString, outStrings);
   outStrings = null;
 
@@ -48,7 +51,7 @@ void saveEvents()
   {
     outStrings[kit.nextIndex()] = ((jtKeyEvent)kit.next()).toString();
   }   
-  sString = "jtKeyEvent_" + year() + month() + day() + "_" + hour() + "-" + minute() + "-" + second()+".txt";
+  sString = keyEventsFileNamePrefix + "_" + year() + month() + day() + "_" + hour() + "-" + minute() + "-" + second()+".txt";
   saveStrings(sString, outStrings);
 
   println("SAVED!");
@@ -64,7 +67,7 @@ long sketchTime()
 
 void loadRecording()
 {
-  String mlines[] = loadStrings(mouseEventsFile);
+  String mlines[] = loadStrings(SavedMouseEventsFileToLoad);
   String mlist[] = split(mlines[0], ' ');
   recScreenWidth = int(mlist[0]);
   recScreenHeight = int(mlist[1]);
@@ -86,7 +89,7 @@ void loadRecording()
     }
   }
 
-  String klines[] = loadStrings(jtKeyEventsFile);
+  String klines[] = loadStrings(SavedKeyEventsFileToLoad);
   for (int i=0; i < klines.length; i++) {
     // x,y,state,time
     String klist[] = split(klines[i], ' ');
