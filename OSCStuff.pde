@@ -38,6 +38,7 @@ public static final String GS_MODES[] = {GS_MODE_NORMAL, GS_MODE_LOOSE};
 public static final String UPDATE_SIM = "update";
 public static final String OSC_CYCLE_LIFE = "cyclelife";
 
+public static final String ADD_CYCLE = "addcycle";
 
 // TODO: for testing
 //private static final String[] ALL_OSC_COMMANDS = [MIRROR_IMAGE, RIGHT_IMAGE
@@ -190,6 +191,13 @@ void setupOSC()
     }
   } 
   );
+  
+  oscCommands.put(ADD_CYCLE, new OscCommand() { 
+    public void cmd() { 
+      addCycle(int(random(myW)/scaling), int(random(myH)/scaling)); 
+    }
+  } 
+  );
 
   // start oscP5, listening for incoming messages at port 12000
   oscP5 = new OscP5(this, 12000);
@@ -319,6 +327,13 @@ void oscEvent(OscMessage theOscMessage)
               {
                 int state = theOscMessage.get(index+1).intValue();
                 if (state > 0) runOSCCommand(UPDATE_SIM);
+              }
+              break;
+
+              case ADD_CYCLE:
+              {
+                int state = theOscMessage.get(index+1).intValue();
+                if (state > 0) runOSCCommand(ADD_CYCLE);
               }
               break;
 

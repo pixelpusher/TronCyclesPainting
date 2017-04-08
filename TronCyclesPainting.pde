@@ -3,6 +3,8 @@
 // Modified and adapted by Evan Raskob 2017
 // http://pixelist.info
 //
+// This version works with Data Walking
+//
 // Licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License:
 // http://creativecommons.org/licenses/by-nc-sa/4.0/
 //
@@ -15,9 +17,10 @@ long startTime = 0;  // time sketch was started, for calculating recording times
 long fakeTime  = 0; //"fake" time when we're rendering, in ms
 long lastTime = 0;
 float fakeFrameRate=30.0; // for rendering
+boolean doneAdding = true; // HACK FOR CONCURRENCY
 
 boolean updateSimulation = false; // update simulation - used in tidal (OSC)
-boolean updateAlways = true; // set to true if not using tidal!
+boolean updateAlways = false; // set to true if not using tidal!
 String imageMode = MIRROR_IMAGE;
 
 final int [] dxs = {
@@ -43,7 +46,7 @@ int scaling = 16;
 int currentseed = 0;
 int nextwait = 0;
 
-static int myW=1920;
+static int myW=1600;
 static int myH=1080;
 
 int minMove = 1;
@@ -60,7 +63,7 @@ PEventsHandler disposeHandler;
 //}
 
 void setup() {
-  fullScreen(P3D,1);
+  fullScreen(P3D);
   smooth(2);
 
   //size(1280,720,P3D);
@@ -68,7 +71,7 @@ void setup() {
   // needed to make sure we stop recording properly
   disposeHandler = new PEventsHandler(this);
 
-  grid = new Grid(width/scaling, height/scaling);
+  grid = new Grid(myW/scaling, myH/scaling);
   strokeWeight(1);  
 
   frameRate(FRAMERATE);
@@ -126,8 +129,15 @@ void draw()
   gsImg.beginDraw();
   gsImg.pushMatrix();
   gsImg.scale(scaling/gsScale);
-  for (Cycle c : cycles)
-    c.draw();
+  try {
+    for (Cycle c : cycles)
+      c.draw();
+    }
+  catch (Exception e)
+  {
+    //println(e.getMessage());
+     // do nothing... 
+  }
   gsImg.popMatrix();
   gsImg.endDraw();
 
@@ -136,7 +146,7 @@ void draw()
   {
     imageMode(CORNERS);
     blendMode(ADD);
-    image(gsImg, 0, 0, width, height);
+    image(gsImg, 0, 0, myW, myH);
   }
 
   if (imageMode == RIGHT_IMAGE || imageMode == MIRROR_IMAGE)
@@ -145,22 +155,22 @@ void draw()
     scale(-1, 1);
     imageMode(CORNERS);
     blendMode(ADD);
-    image(gsImg, 0, 0, -width, height);
+    image(gsImg, 0, 0, -myW, myH);
     popMatrix();
   }
 
   if (updateSimulation || updateAlways)
   {
-    /*
-    if (frameCount % 20 == 0)
+    
+    if ((frameCount % 20 == 0) && (random(1) > 0.5) )
     {
-     addCycle(int(random(myW)/scaling), int(random(myH)/scaling)); 
+       addCycle(int(random(myW)/scaling), int(random(myH)/scaling)); 
     }
-    */
+    
     pushMatrix();
     scale(scaling);
 
-
+    try {
     ListIterator<Cycle> li = cycles.listIterator();
 
     while (li.hasNext()) 
@@ -183,7 +193,12 @@ void draw()
       }
 
       //c.draw();
-    } //end for all Cycles
+    }
+    } catch (Exception e)
+    {
+       // do nothing 
+    }
+    //end for all Cycles
     
 
     //gsImg.popMatrix();
@@ -217,7 +232,7 @@ void next() {
   float burnone = random(1.0);
   background(0);
   grid.clear();
-  grid.setDims(width/scaling, height/scaling);
+  grid.setDims(myW/scaling, myH/scaling);
   
   // top left
   //grid.setRect();
@@ -228,6 +243,7 @@ void next() {
 
 Cycle addCycle(int x, int y)
 {
+  doneAdding = false;
   Cycle w = new Cycle(x, y, cycleLifetime);
 
   if (cycles.size() >= maxcycles)
@@ -237,7 +253,7 @@ Cycle addCycle(int x, int y)
   }
   cycles.add(w);
   grid.set(x, y, Grid.SOLID);
-
+  doneAdding = true;
   return w;
 }
 
