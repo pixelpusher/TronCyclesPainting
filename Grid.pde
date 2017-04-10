@@ -3,9 +3,9 @@
 // 
 class Grid 
 {
-  static final boolean CLEAR = true;
-  static final boolean SOLID = false;
-  private boolean [][] cells;
+  static final float CLEAR = 0f;
+  static final float SOLID = 1f;
+  private float [][] cells;
   private int width, height;
 
   private int cellcount, solidcount;
@@ -17,33 +17,35 @@ class Grid
 
   int getWidth() 
   {
-    return width;
+    return this.width;
   }
 
   int getHeight()
   {
-    return height;
+    return this.height;
   }
 
   Grid setDims(int w, int h) {
-    width = w;
-    height = h;
-    cells = new boolean[width][height];
-    cellcount = width*height;
+    this.width = w;
+    this.height = h;
+    cells = new float[this.width][this.height];
+    cellcount = this.width*this.height;
     clear();
     return this;
   }
 
   void clear() 
   {
-    for (int x=0; x<width; x++)
-      for (int y=0; y<height; y++)
+    for (int x=0; x<this.width; x++)
+      for (int y=0; y<this.height; y++)
         cells[x][y] = CLEAR;
+        
+    if (gs != null) gs.reset();
     solidcount = 0;
   }
 
   boolean isValidCoords(int x, int y) {
-    return ((x > -1) && (y > -1) && (x < width) && (y < height));
+    return ((x > -1) && (y > -1) && (x < this.width) && (y < this.height));
   }
 
   boolean isFullySolid() 
@@ -51,29 +53,42 @@ class Grid
     return ( solidcount == cellcount );
   }
 
-  boolean set(int x, int y, boolean state) 
+  boolean set(int x, int y, float val) 
   {
     boolean success = false;
 
     if (isValidCoords(x, y)) {
-      if ((cells[x][y]==SOLID) && (state==CLEAR)) {
+      if ((cells[x][y] > 0f) && (val == 0f)) {
         // grayScott
-        //gs.clearRect(x, y, 2, 2);
+        gs.clearRect(scaling*x, scaling*y, gsScale, gsScale); //<>//
         solidcount--;
-      }
-      if ((cells[x][y]==CLEAR) && (state==SOLID)) {
+      } 
+      else
+      {
+      if ((cells[x][y]== 0f) && (val > 0f)) {
         solidcount++;
         // grayScott
-        //gs.setRect(scaling*x/gsScale, scaling*y/gsScale, gsScale, gsScale);
-        gs.setRect(scaling*x, scaling*y, gsScale, gsScale);
-      } 
-      cells[x][y] = state;
+        //println("set " + millis());
+        gs.clearRect(scaling*x, scaling*y, gsScale, gsScale, 0.25f, val); //<>//
+      }
+      cells[x][y] = val;
       success = true;
+      }
     }
     return success;
   }
 
-  boolean get(int x, int y) 
+  boolean setRect(int x, int y, int w, int h, float val)
+  {
+    boolean result = true;
+    for (int yy = y; y < y+h; y++)
+      for (int xx = x; x < x+w; x++)
+        result = result && set(xx, yy, val);
+
+    return result;
+  }
+
+  float get(int x, int y) 
   {
     if (isValidCoords(x, y))
       return cells[x][y];
@@ -81,9 +96,9 @@ class Grid
       return SOLID;
   }
 
-  //  boolean isClear(int x, int y) 
+  //  float isClear(int x, int y) 
   //  {
-  //    boolean result = SOLID; 
+  //    float result = SOLID; 
   //    if (isValidCoords(x,y))
   //      result = this.get(x,y);
   //    return result; 

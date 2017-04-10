@@ -8,6 +8,7 @@ class Cycle
   int skip = 1;
   color c, deadColor, overlayColor;
   boolean alive;
+  float val;
 
   private ArrayList<PVector> path;
   private int ox, oy, dir, handedness;
@@ -69,7 +70,7 @@ class Cycle
     pathShape.beginShape();
     pathShape.noFill();
     pathShape.stroke(255,200);
-    pathShape.strokeWeight(0.75);
+    pathShape.strokeWeight(scaling/2);
 
     for (PVector v : path) 
     {
@@ -107,14 +108,15 @@ class Cycle
         newd = checkorder[i];
         newx = x + dxs[newd]/skip;
         newy = y + dys[newd]/skip;
-        if (g.get(newx, newy))
+        if (g.get(newx, newy) == 0f)
           break;
       }
 
       // move or die
-      if (g.get(newx, newy))
+      if (g.get(newx, newy) == 0f) //<>//
       {
-        if ((x!=newx) || (y!=newy)) 
+        //println("move " + millis());
+        if ((x!=newx) || (y!=newy))  //<>//
         {
           ox = x;
           oy = y;
@@ -122,7 +124,7 @@ class Cycle
           y = newy;
           dir = newd;
           // update grid
-          g.set(newx, newy, Grid.SOLID);
+          g.set(newx, newy, this.val);
           // update path
           path.get(currentLife).set(newx, newy);
           float f = currentLife/(float)maxLife;

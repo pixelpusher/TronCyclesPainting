@@ -54,7 +54,8 @@ void handleKeyPressed()
       break;
 
     case '-': 
-      saveFrame();
+      //saveFrame();
+      gsImg.save("saved_" + millis() + int(random(99999)) + ".tif");
       break;
 
     case '\\': 

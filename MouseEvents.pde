@@ -67,10 +67,10 @@ void handleMousePressed()
 
     // note last point
     _lastP = new PVector(startMouseX/scaling, startMouseY/scaling);
-    grid.set((int)_lastP.x, (int)_lastP.y, Grid.CLEAR);
+    //grid.set((int)_lastP.x, (int)_lastP.y, Grid.CLEAR);
 
-    addCycle((int)_lastP.x, (int)_lastP.y);
-    gestures.push(new Gesture((int)_lastP.x, (int)_lastP.y, CYCLE_LIFETIME*4)); // first is always current
+    //addCycle((int)_lastP.x, (int)_lastP.y);
+    //gestures.push(new Gesture((int)_lastP.x, (int)_lastP.y, CYCLE_LIFETIME*4)); // first is always current
   }
 
 
@@ -97,14 +97,14 @@ void handleMouseDragged()
   int gridX = sketchMouseX()/scaling;
   int gridY = sketchMouseY()/scaling;
  
-  if (dist(gridX, gridY, _lastP.x, _lastP.y) > minMove)
-  {
-    addCycle(gridX, gridY);
-    Gesture g = gestures.peek();
-    g.addPoint(gridX, gridY);
-    _lastP.x = gridX;
-    _lastP.y = gridY;
-  }
+  //if (dist(gridX, gridY, _lastP.x, _lastP.y) > minMove)
+  //{
+  //  addCycle(gridX, gridY);
+  //  Gesture g = gestures.peek();
+  //  g.addPoint(gridX, gridY);
+  //  _lastP.x = gridX;
+  //  _lastP.y = gridY;
+  //}
 }
 
 void mouseMoved()
@@ -130,6 +130,6 @@ void handleMouseReleased()
   theMouseDown = false;
   
   // would need fixing later
-  Gesture g = gestures.peek();
-  g.finished = true;
+  //Gesture g = gestures.peek();
+  //g.finished = true;
 }

@@ -1,4 +1,4 @@
-// Tron 
+// Tron  //<>//
 // 
 // Modified and adapted by Evan Raskob 2017
 // http://pixelist.info
@@ -26,7 +26,7 @@ final int [] dys = {
   0, -1, 0, 1
 };
 
-final int CYCLE_LIFETIME = 16;
+final int CYCLE_LIFETIME = 8;
 
 Grid grid;
 LinkedList<Cycle> cycles;
@@ -38,12 +38,12 @@ final int maxcycles = 120;
 int ncycles;
 boolean respawn = false; // respawn cycless automagically after dying
 
-int scaling = 6;
+int scaling = 12;
 int currentseed = 0;
 int nextwait = 0;
 
-static final int myW=2048;
-static final int myH=1024;
+static final int myW=3508;
+static final int myH=2480;
 
 int minMove = 1;
 
@@ -51,28 +51,30 @@ int minMove = 1;
 // handle shutdown properly and save recordings -- needs to be library, really
 PEventsHandler disposeHandler;
 
-//PGraphics cycleImageBuffer;
-
+PGraphics ImageBuffer;
+/*
 void settings()
-{
-  //size(srcImg.width,srcImg.height);
-  size(myW, myH, P3D);
-}
+ {
+ //size(srcImg.width,srcImg.height);
+ size(myW, myH, P3D);
+ }
+ */
 
 void setup() 
 {
-  //size(myW, myH, P3D);
+  size(1280, 720, P3D);
   //fullScreen(P3D);
+  //ImageBuffer = createGraphics(myW, myH, P3D);
   pixelDensity(displayDensity());
   walkData = loadAllData();
   currentDataRow = 0;
-
+  //println(new int[]{width,height});
   smooth(2);
 
   // needed to make sure we stop recording properly
   disposeHandler = new PEventsHandler(this);
 
-  grid = new Grid(width/scaling, height/scaling);
+  grid = new Grid(myW/scaling, myH/scaling);
   strokeWeight(1);  
 
   frameRate(FRAMERATE);
@@ -106,6 +108,7 @@ void setup()
 void draw() 
 {
   background(0);
+  //println(new int[]{width,height});
 
   //if (nextwait > 0) 
   //{
@@ -125,23 +128,23 @@ void draw()
   for (Cycle c : cycles)
     c.draw();
   gsImg.popMatrix();
-  gsImg.endDraw();
-
-  imageMode(CORNERS);
-  blendMode(ADD);
-  image(gsImg, 0, 0, width, height);
-
-  // draw flipped
-  if (false)
-  {
-    pushMatrix();
-    scale(-1, 1);
-    image(gsImg, 0, 0, -width, height);
-    popMatrix();
-  }
-  pushMatrix();
-  scale(scaling);
-
+  //gsImg.endDraw();
+  /*
+  ImageBuffer.imageMode(CORNERS);
+   ImageBuffer.blendMode(ADD);
+   ImageBuffer.image(gsImg, 0, 0, ImageBuffer.width, ImageBuffer.height);
+   
+   // draw flipped
+   if (false)
+   {
+   ImageBuffer.pushMatrix();
+   ImageBuffer.scale(-1, 1);
+   ImageBuffer.image(gsImg, 0, 0, -ImageBuffer.width, ImageBuffer.height);
+   ImageBuffer.popMatrix();
+   }
+   //ImageBuffer.pushMatrix();
+   //ImageBuffer.scale(scaling);
+   */
   ListIterator<Cycle> li = cycles.listIterator();
 
   while (li.hasNext()) 
@@ -156,11 +159,6 @@ void draw()
     {
       li.remove();
       c.freeGrid(grid); // clear up used spaces
-
-      if (respawn)
-      {
-        addCycle(sketchMouseX()/scaling, sketchMouseY()/scaling);
-      }
     }
 
     //c.draw();
@@ -175,38 +173,51 @@ void draw()
   //  }
   //  running = false;
   //}
-  popMatrix();
-  fill(255, 255, 0);
-  noStroke();
-  ellipseMode(CENTER);
+  //ImageBuffer.popMatrix();
+  //gsImg.fill(255, 255, 0);
+  gsImg.noStroke();
+  gsImg.ellipseMode(CENTER);
   for (int ii=0; ii < walkData.length; ii++)
   {
     float[] dataRow = walkData[ii];
     //float mq135 = exp(dataRow[2]+1)/exp(2);
-    float mq135 = log(dataRow[2]);
-    ellipse(int(dataRow[0]), int(dataRow[1]), mq135*scaling*2,mq135*scaling*2);
+    //float mq135 = log(dataRow[2]);
+    float mq135 = dataRow[2];
+    int c = gsColorMap.getARGBToneFor(dataRow[2]);
+    gsImg.fill(c);
+    gsImg.ellipse(int(dataRow[0]), int(dataRow[1]), mq135*scaling*6, mq135*scaling*6);
 
     //gs.clearRect(int(gsScale*dataRow[0]/scaling), int(gsScale*dataRow[1]/scaling), 3,3);
 
-    gs.clearRect(int(dataRow[0]), int(dataRow[1]), (int)(mq135*gsScale*8), (int)(mq135*gsScale*8), mq135/5, 0.0);
+    gs.clearRect(int(dataRow[0]), int(dataRow[1]), (int)(mq135*gsScale*2), (int)(mq135*gsScale*2), mq135/5, 0.0);
   }
 
+  gsImg.endDraw();
+
+  imageMode(CORNERS);
+  image(gsImg, 0, 0, width, height);
 
   if (running && (sketchTime() - lastTime > NextDataPointInterval))
   {
     lastTime = sketchTime();
-    float[] dataRow = walkData[currentDataRow];
+    
+    //iterate a few times
+    for (int iii=0; iii<3; iii++) {
 
-    addCycle(int(dataRow[0]/scaling), int(dataRow[1]/scaling));
-    dataRow = walkData[walkData.length-1-currentDataRow];
-    addCycle(int(dataRow[0]/scaling), int(dataRow[1]/scaling));
+      float[] dataRow = walkData[currentDataRow];
 
-    currentDataRow++;
-    // stop if we're out of points
-    if (currentDataRow >= walkData.length) 
-    {
-      currentDataRow = 0;
-      //running = false;
+      //addCycle(int(dataRow[0]/scaling), int(dataRow[1]/scaling), sqrt(dataRow[2]));
+      addCycle(int(dataRow[0]/scaling), int(dataRow[1]/scaling), 0.6+0.4*dataRow[2]);
+      dataRow = walkData[walkData.length-1-currentDataRow];
+      addCycle(int(dataRow[0]/scaling), int(dataRow[1]/scaling), 0.6+0.4*dataRow[2]);
+
+      currentDataRow++;
+      // stop if we're out of points
+      if (currentDataRow >= walkData.length) 
+      {
+        currentDataRow = 0;
+        //running = false;
+      }
     }
   }
 
@@ -241,7 +252,7 @@ void next() {
   //popStyle();
 
   grid.clear();
-  grid.setDims(width/scaling, height/scaling);
+  grid.setDims(myW/scaling, myH/scaling);
   cycles.clear();
   /*
   ncycles = (int)random(mincycles, maxcycles);
@@ -256,16 +267,18 @@ void next() {
 }
 
 
-Cycle addCycle(int x, int y)
+Cycle addCycle(int x, int y, float val)
 {
   Cycle w = new Cycle(x, y, CYCLE_LIFETIME);
+  w.val = val;
+
   if (cycles.size() >= maxcycles)
   {
     Cycle first = cycles.removeFirst();
     first.freeGrid(grid); // clear up used spaces
   }
   cycles.add(w);
-  grid.set(x, y, Grid.SOLID);
+  grid.set(x, y, w.val);
 
   return w;
 }

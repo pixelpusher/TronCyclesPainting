@@ -9,7 +9,7 @@ final String COLOR_MODE_FIREY = "firey";
 final String COLOR_MODE_COOL = "cool";
 final String COLOR_MODE_INVERT = "invert";
 
-int NUM_ITERATIONS = 1;
+int NUM_ITERATIONS = 2;
 
 PatternedGrayScott gs;
 
@@ -18,7 +18,9 @@ HashMap<String, ToneMap> gsColors;
 PGraphics gsImg;
 boolean clearGs = false;
 
-int gsScale = 6;
+int gsScale = 12;
+
+//12*3 or *2 was nice and chunky
 
 // present modes for GrayScott coefficients, usually changed via OSC
 HashMap<String, GrayScottCoefficient> gsModes; 
@@ -28,12 +30,12 @@ ToneMap gsColorMap;
 void setupGrayScott()
 {
   //gsImg = createImage(4*width/scaling, 4*height/scaling,ARGB);
-  gsImg = createGraphics(width, height, P3D); 
+  gsImg = createGraphics(myW, myH, P3D); 
   gsImg.beginDraw();
   gsImg.background(0);
   gsImg.endDraw();
 
-  gs=new PatternedGrayScott(width, height, false);
+  gs=new PatternedGrayScott(myW, myH, false);
 
   gsModes = new HashMap<String, GrayScottCoefficient>();
   gsModes.put(GS_MODE_NORMAL, new GrayScottCoefficient(0.02, 0.066, 0.06, 0.09));
@@ -58,21 +60,19 @@ void setupGrayScott()
   //monochrome
 
   //monochrome
-  grad.addColorAt(0, NamedColor.BLACK);
-  grad.addColorAt(16, NamedColor.WHITE);
-  grad.addColorAt(64, NamedColor.BLACK);
-  grad.addColorAt(128, NamedColor.WHITE);
-  grad.addColorAt(200, NamedColor.YELLOW);
-  grad.addColorAt(230, NamedColor.BLACK);
-
-
-  //grad.addColorAt(0, TColor.newRGB(0f, 0f, 0f));
-  //grad.addColorAt(8, TColor.newRGB(0.2f, 0.3f, 0.2f));
-  //grad.addColorAt(36, TColor.newRGB(0.2f, 0.8f, 0.2f));
+  //grad.addColorAt(0, NamedColor.BLACK);
+  //grad.addColorAt(16, NamedColor.WHITE);
   //grad.addColorAt(64, NamedColor.BLACK);
-  //grad.addColorAt(128, NamedColor.PINK);
-  //grad.addColorAt(200, NamedColor.GREEN);
+  //grad.addColorAt(128, NamedColor.WHITE);
+  //grad.addColorAt(200, NamedColor.YELLOW);
   //grad.addColorAt(230, NamedColor.BLACK);
+
+
+  grad.addColorAt(0, TColor.newRGB(0f, 0f, 0f));
+  grad.addColorAt(24, TColor.newRGB(0f, 0.4f, 0.9f));
+  grad.addColorAt(100, NamedColor.PURPLE);
+  grad.addColorAt(200, NamedColor.RED);
+  grad.addColorAt(240, TColor.newRGBA(1f,1f, 0f, 0.8f));
 
   // this gradient is used to map simulation values to colors
   // the first 2 parameters define the min/max values of the
@@ -90,7 +90,7 @@ void setupGrayScott()
   grad.addColorAt(64, NamedColor.BLACK);
   grad.addColorAt(128, NamedColor.WHITE);
   grad.addColorAt(192, TColor.newRGB(0.2f, 0.3f, 0.8f));
-  grad.addColorAt(255, NamedColor.PURPLE);
+  grad.addColorAt(255, TColor.newRGB(0.2f, 0.9f, 0.8f));
 
   gsColors.put(COLOR_MODE_COOL, new ToneMap(0, 0.43, grad));
 
@@ -159,22 +159,22 @@ class PatternedGrayScott extends GrayScott {
   // we use the x position to divide the simulation space into columns
   // of alternating behaviors
   public float getFCoeffAt(int x, int y) {
-    x/=16;
+    x/=(gsScale*2);
     return 0==x%2 ? f : f-0.002;
   }
 
   // we use the y position to create a gradient of varying values for
   // the simulation's K coefficient
   public float getKCoeffAt(int x, int y) {
-    y/=8;
+    y/=(gsScale);
     return 0==y%2 ? k : k-y*0.00004;
   }
 
   public void clearRect(int x, int y, int w, int h) {
-    int mix = MathUtils.clip(x - w / 2, 0, width);
-    int max = MathUtils.clip(x + w / 2, 0, width);
-    int miy = MathUtils.clip(y - h / 2, 0, height);
-    int may = MathUtils.clip(y + h / 2, 0, height);
+    int mix = MathUtils.clip(x - w / 2, 0, this.width);
+    int max = MathUtils.clip(x + w / 2, 0, this.width);
+    int miy = MathUtils.clip(y - h / 2, 0, this.height);
+    int may = MathUtils.clip(y + h / 2, 0, this.height);
     for (int yy = miy; yy < may; yy++) {
       for (int xx = mix; xx < max; xx++) {
         int idx = yy * width + xx;
@@ -185,10 +185,10 @@ class PatternedGrayScott extends GrayScott {
   }
 
   public void clearRect(int x, int y, int w, int h, float uuu, float vvv) {
-    int mix = MathUtils.clip(x - w / 2, 0, width);
-    int max = MathUtils.clip(x + w / 2, 0, width);
-    int miy = MathUtils.clip(y - h / 2, 0, height);
-    int may = MathUtils.clip(y + h / 2, 0, height);
+    int mix = MathUtils.clip(x - w / 2, 0, this.width);
+    int max = MathUtils.clip(x + w / 2, 0, this.width);
+    int miy = MathUtils.clip(y - h / 2, 0, this.height);
+    int may = MathUtils.clip(y + h / 2, 0, this.height);
     for (int yy = miy; yy < may; yy++) {
       for (int xx = mix; xx < max; xx++) {
         int idx = yy * width + xx;

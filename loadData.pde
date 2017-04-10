@@ -6,8 +6,8 @@ int currentDataRow = -1;
  //
  float[] coordinateToCartesian(float lat, float lon)
  {
-    float x = width * (0.125 + 0.5 * lon / PI);
-    float y = height * (0.33 + 0.67*log((1f + sin(lat))/(1f - sin(lat))) / (2 * TWO_PI)); 
+    float x = myW * (0.125 + 0.75 * lon / PI);
+    float y = myH * (0.15 + 0.9*log((1f + sin(lat))/(1f - sin(lat))) / (2 * TWO_PI)); 
     float[] val = {x,y};
     //println(val);
     return val;
