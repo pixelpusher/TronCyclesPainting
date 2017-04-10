@@ -1,10 +1,9 @@
-//
+// //<>// //<>//
 // simple 2D binary "Grid" 
 // 
 class Grid 
 {
-  static final float CLEAR = 0f;
-  static final float SOLID = 1f;
+  static final float CLEAR = 2f;
   private float [][] cells;
   private int width, height;
 
@@ -39,7 +38,7 @@ class Grid
     for (int x=0; x<this.width; x++)
       for (int y=0; y<this.height; y++)
         cells[x][y] = CLEAR;
-        
+
     if (gs != null) gs.reset();
     solidcount = 0;
   }
@@ -58,22 +57,19 @@ class Grid
     boolean success = false;
 
     if (isValidCoords(x, y)) {
-      if ((cells[x][y] > 0f) && (val == 0f)) {
-        // grayScott
-        gs.clearRect(scaling*x, scaling*y, gsScale, gsScale); //<>//
+      if ((cells[x][y] != Grid.CLEAR) && (val == Grid.CLEAR)) {
+        // grayScott - don't clear!
+        // gs.clearRect(scaling*x, scaling*y, gsScale, gsScale);
         solidcount--;
-      } 
-      else
+      } else if ((cells[x][y]== Grid.CLEAR) && (val != Grid.CLEAR)) 
       {
-      if ((cells[x][y]== 0f) && (val > 0f)) {
         solidcount++;
         // grayScott
         //println("set " + millis());
-        gs.clearRect(scaling*x, scaling*y, gsScale, gsScale, 0.25f, val); //<>//
+        gs.clearRect(scaling*x, scaling*y, gsScale, gsScale, 0.25f, val);
       }
       cells[x][y] = val;
       success = true;
-      }
     }
     return success;
   }
@@ -93,7 +89,7 @@ class Grid
     if (isValidCoords(x, y))
       return cells[x][y];
     else
-      return SOLID;
+      return -1f;
   }
 
   //  float isClear(int x, int y) 

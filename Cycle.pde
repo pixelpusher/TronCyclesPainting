@@ -6,7 +6,7 @@ class Cycle
 {
   int x, y;
   int skip = 1;
-  color c, deadColor, overlayColor;
+  ReadonlyTColor c;
   boolean alive;
   float val;
 
@@ -17,25 +17,22 @@ class Cycle
 
   private PShape pathShape;
 
-  Cycle(int _x, int _y, int _maxLife) {
-    init(_x, _y, _maxLife);
+  Cycle(int _x, int _y, int _maxLife, float _val) {
+    init(_x, _y, _maxLife, _val);
   }
 
   //
   // reset or re-init the Cycle
   //
-  Cycle init(int _x, int _y, int _maxLife) {
+  Cycle init(int _x, int _y, int _maxLife, float _val) {
+    val = _val;
     ox = x = _x;
     oy = y = _y;
-
-    setmaxLife(_maxLife);
-
-    dir = millis()%4;
-    c = color(255,255);
-    deadColor = color(0);
-    //overlayColor = color(0);
-    handedness = (random(1.0)>0.5) ? 1 : 3;
     alive = true;
+    dir = millis()%4;
+    c = gsColorMap.getToneFor(val).copy();
+    handedness = (random(1.0)>0.5) ? 1 : 3;
+    setmaxLife(_maxLife);
 
     // set all points to original location
     for (PVector point : path)
@@ -69,7 +66,7 @@ class Cycle
     
     pathShape.beginShape();
     pathShape.noFill();
-    pathShape.stroke(255,200);
+    pathShape.stroke(c.toARGB());
     pathShape.strokeWeight(scaling/2);
 
     for (PVector v : path) 
@@ -108,12 +105,12 @@ class Cycle
         newd = checkorder[i];
         newx = x + dxs[newd]/skip;
         newy = y + dys[newd]/skip;
-        if (g.get(newx, newy) == 0f)
+        if (g.get(newx, newy) == Grid.CLEAR)
           break;
       }
 
       // move or die
-      if (g.get(newx, newy) == 0f) //<>//
+      if (g.get(newx, newy) == Grid.CLEAR) //<>//
       {
         //println("move " + millis());
         if ((x!=newx) || (y!=newy))  //<>//
@@ -128,8 +125,9 @@ class Cycle
           // update path
           path.get(currentLife).set(newx, newy);
           float f = currentLife/(float)maxLife;
-          pathShape.setStroke(currentLife,color(255, (int)(255f*f*f)));
           
+          //pathShape.setStroke(currentLife,color(255, (int)(255f*f*f)));
+          pathShape.setStroke(c.getLightened(f*f).toARGB());
           for (int i=currentLife; i>0; i--)
           {
             PVector v = pathShape.getVertex(maxLife-i);
@@ -144,12 +142,12 @@ class Cycle
       else 
       {
         alive = false;
-        pathShape.setStroke(deadColor);
+        //pathShape.setStroke(deadColor);
       }
     }
     else {
       alive = false;
-        pathShape.setStroke(deadColor); // huh? got to rethink this
+        //pathShape.setStroke(deadColor); // huh? got to rethink this
     }
   }// end move
 
@@ -157,18 +155,5 @@ class Cycle
   void draw() 
   {
     gsImg.shape(pathShape);
-  }
-
-  void drawOverlay(int rez) 
-  {
-    //color newc = srcImg.pixels[srcImg.width*(y*grid.rez+grid.rez/2)+x*grid.rez+grid.rez/2];
-
-    //color newc = srcImg.get(x*grid.rez+grid.rez/2, y*grid.rez+grid.rez/2);
-    //c = blendC(c, newc, mixingRatio);
-    //c = blendColor(c, newc, imgMode); 
-
-    stroke(overlayColor);
-    line(ox*rez+rez/2, oy*rez+rez/2, 
-      x*rez+rez/2, y*rez+rez/2);
   }
 }

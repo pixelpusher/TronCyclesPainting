@@ -9,7 +9,7 @@ final String COLOR_MODE_FIREY = "firey";
 final String COLOR_MODE_COOL = "cool";
 final String COLOR_MODE_INVERT = "invert";
 
-int NUM_ITERATIONS = 2;
+int NUM_ITERATIONS = 1;
 
 PatternedGrayScott gs;
 
@@ -18,7 +18,7 @@ HashMap<String, ToneMap> gsColors;
 PGraphics gsImg;
 boolean clearGs = false;
 
-int gsScale = 12;
+int gsScale = 8*2*2/3;
 
 //12*3 or *2 was nice and chunky
 
@@ -39,6 +39,8 @@ void setupGrayScott()
 
   gsModes = new HashMap<String, GrayScottCoefficient>();
   gsModes.put(GS_MODE_NORMAL, new GrayScottCoefficient(0.02, 0.066, 0.06, 0.09));
+  //gsModes.put(GS_MODE_NORMAL, new GrayScottCoefficient(0.018, 0.066, 0.001, 0.06));
+  //gsModes.put(GS_MODE_NORMAL, new GrayScottCoefficient(0.022, 0.066, 0.0002, 0.06));
   gsModes.put(GS_MODE_LOOSE, new GrayScottCoefficient(0.02, 0.07, 0.12, 0.08));
 
   gs.setCoefficients(gsModes.get(GS_MODE_NORMAL)); //    setCoefficients(float f, float k, float dU, float dV) 
@@ -47,17 +49,7 @@ void setupGrayScott()
 
   // create a color gradient for 256 values
   ColorGradient grad=new ColorGradient();
-  // NamedColors are preset colors, but any TColor can be added
-  // see javadocs for list of names:
-  // http://toxiclibs.org/docs/colorutils/toxi/color/NamedColor.html
-  //grad.addColorAt(0, NamedColor.BLACK);
-  //grad.addColorAt(16, NamedColor.WHITE);
-  //grad.addColorAt(64, NamedColor.BLACK);
-  //grad.addColorAt(128, NamedColor.YELLOW);
-  //grad.addColorAt(192, NamedColor.RED);
-  //grad.addColorAt(255, TColor.newRGB(1f,0.3f,1f));
 
-  //monochrome
 
   //monochrome
   //grad.addColorAt(0, NamedColor.BLACK);
@@ -67,12 +59,29 @@ void setupGrayScott()
   //grad.addColorAt(200, NamedColor.YELLOW);
   //grad.addColorAt(230, NamedColor.BLACK);
 
+  TColor baseColor = TColor.newRGBA(0.4f, 0.1f, 0.9f,0.9f);
+  
+  grad.addColorAt(0, TColor.newRGBA(1f, 1f, 1f,1f));
+  for (float v=0.1f; v < 1f; v += 0.1f)
+  {
+    float v2 = pow(v,0.25);
+    //TColor tmp = baseColor.getAnalog(v2*180, 0.3);
+    
+    TColor tmp = baseColor.getRotatedRYB((int)(-45+v*90));    
+    
+    grad.addColorAt(int(v2*255), tmp);
+    //grad.addColorAt(int((v2+0.15f)*255), tmp.getDarkened(v2));
+  }
+  
+  //grad.addColorAt(30, TColor.newRGBA(0.7f,0f, 0.7f, 0.8f));
+  //grad.addColorAt(60, TColor.newRGBA(0.8f,0.2f, 0.2f, 0.8f));
+  //grad.addColorAt(70, TColor.newRGBA(0.7f,0f, 0.7f, 0.8f));
+  //grad.addColorAt(100, TColor.newRGBA(1f,0.9f, 0.2f, 0.8f));
+  //grad.addColorAt(110, TColor.newRGBA(0.7f,0f, 0.7f, 0.8f));
+  //grad.addColorAt(255, TColor.newRGBA(0.8f,0.2f, 0.2f, 0.8f));
 
-  grad.addColorAt(0, TColor.newRGB(0f, 0f, 0f));
-  grad.addColorAt(24, TColor.newRGB(0f, 0.4f, 0.9f));
-  grad.addColorAt(100, NamedColor.PURPLE);
-  grad.addColorAt(200, NamedColor.RED);
-  grad.addColorAt(240, TColor.newRGBA(1f,1f, 0f, 0.8f));
+  //grad.addColorAt(0, TColor.newRGBA(1f, 1f, 1f,1f));
+  //grad.addColorAt(255, TColor.newRGBA(0.8f,0.2f, 0.2f, 0.8f));
 
   // this gradient is used to map simulation values to colors
   // the first 2 parameters define the min/max values of the
@@ -159,15 +168,16 @@ class PatternedGrayScott extends GrayScott {
   // we use the x position to divide the simulation space into columns
   // of alternating behaviors
   public float getFCoeffAt(int x, int y) {
-    x/=(gsScale*2);
-    return 0==x%2 ? f : f-0.002;
+    x/=(gsScale);
+    return 0==x%2 ? f : f+0.002f;
   }
 
-  // we use the y position to create a gradient of varying values for
-  // the simulation's K coefficient
+
+   //we use the y position to create a gradient of varying values for
+   //the simulation's K coefficient
   public float getKCoeffAt(int x, int y) {
-    y/=(gsScale);
-    return 0==y%2 ? k : k-y*0.00004;
+    y/=(gsScale*2/3);
+    return 0==y%2 ? k : k-0.002f;
   }
 
   public void clearRect(int x, int y, int w, int h) {

@@ -15,7 +15,7 @@ long startTime = 0;  // time sketch was started, for calculating recording times
 long fakeTime  = 0; //"fake" time when we're rendering, in ms
 long lastTime = 0; // last time we added a cycle
 final float fakeFrameRate=30.0; // for rendering
-final long NextDataPointInterval = 40; // in ms, time between advancing data points
+final long NextDataPointInterval = 4; // in ms, time between advancing data points
 boolean running = true;  // advance data points until false
 
 // directions for cycle movement
@@ -26,7 +26,7 @@ final int [] dys = {
   0, -1, 0, 1
 };
 
-final int CYCLE_LIFETIME = 8;
+final int CYCLE_LIFETIME = 10/2;
 
 Grid grid;
 LinkedList<Cycle> cycles;
@@ -38,7 +38,7 @@ final int maxcycles = 120;
 int ncycles;
 boolean respawn = false; // respawn cycless automagically after dying
 
-int scaling = 12;
+int scaling = 10*2;
 int currentseed = 0;
 int nextwait = 0;
 
@@ -122,30 +122,10 @@ void draw()
 
   int i = 0;
 
+  ListIterator<Cycle> li = cycles.listIterator();
   gsImg.beginDraw();
   gsImg.pushMatrix();
   gsImg.scale(scaling);
-  for (Cycle c : cycles)
-    c.draw();
-  gsImg.popMatrix();
-  //gsImg.endDraw();
-  /*
-  ImageBuffer.imageMode(CORNERS);
-   ImageBuffer.blendMode(ADD);
-   ImageBuffer.image(gsImg, 0, 0, ImageBuffer.width, ImageBuffer.height);
-   
-   // draw flipped
-   if (false)
-   {
-   ImageBuffer.pushMatrix();
-   ImageBuffer.scale(-1, 1);
-   ImageBuffer.image(gsImg, 0, 0, -ImageBuffer.width, ImageBuffer.height);
-   ImageBuffer.popMatrix();
-   }
-   //ImageBuffer.pushMatrix();
-   //ImageBuffer.scale(scaling);
-   */
-  ListIterator<Cycle> li = cycles.listIterator();
 
   while (li.hasNext()) 
   {
@@ -154,7 +134,7 @@ void draw()
     if (c.alive)
     {
       c.move(grid);
-      //c.draw();
+      c.draw();
     } else 
     {
       li.remove();
@@ -163,6 +143,7 @@ void draw()
 
     //c.draw();
   } //end for all Cycles
+  gsImg.popMatrix();
 
   //if (running)
   //{
@@ -180,16 +161,17 @@ void draw()
   for (int ii=0; ii < walkData.length; ii++)
   {
     float[] dataRow = walkData[ii];
-    //float mq135 = exp(dataRow[2]+1)/exp(2);
-    //float mq135 = log(dataRow[2]);
-    float mq135 = dataRow[2];
-    int c = gsColorMap.getARGBToneFor(dataRow[2]);
-    gsImg.fill(c);
-    gsImg.ellipse(int(dataRow[0]), int(dataRow[1]), mq135*scaling*6, mq135*scaling*6);
+    if (dataRow[0] < myW && dataRow[1] < myH)
+    {
+      //float mq135 = exp(dataRow[2]+1)/exp(2);
+      //float mq135 = log(dataRow[2]);
+      float mq135 = min(dataRow[2]*dataRow[2], 1f);
+      int c = gsColorMap.getARGBToneFor(mq135);
 
-    //gs.clearRect(int(gsScale*dataRow[0]/scaling), int(gsScale*dataRow[1]/scaling), 3,3);
-
-    gs.clearRect(int(dataRow[0]), int(dataRow[1]), (int)(mq135*gsScale*2), (int)(mq135*gsScale*2), mq135/5, 0.0);
+      gsImg.fill(c);
+      gsImg.ellipse(int(dataRow[0]), int(dataRow[1]), mq135*scaling*8, mq135*scaling*8);
+    }
+    //gs.clearRect(int(dataRow[0]), int(dataRow[1]), (int)(mq135*gsScale*2), (int)(mq135*gsScale*2), mq135/5, 0.0);
   }
 
   gsImg.endDraw();
@@ -197,27 +179,44 @@ void draw()
   imageMode(CORNERS);
   image(gsImg, 0, 0, width, height);
 
-  if (running && (sketchTime() - lastTime > NextDataPointInterval))
+  //if (running && (sketchTime() - lastTime > NextDataPointInterval))
+  //if (running && ((frameCount-lastTime) > NextDataPointInterval))
+  if (cycles.size() <1)
   {
-    lastTime = sketchTime();
-    
-    //iterate a few times
-    for (int iii=0; iii<3; iii++) {
+    lastTime = frameCount;
 
-      float[] dataRow = walkData[currentDataRow];
 
+    float[] dataRow = walkData[currentDataRow];
+
+    if (dataRow[0] > myW || dataRow[1] > myH || dataRow[0] < 0 || dataRow[1] < 0)
+    {
+    } else
+    {
       //addCycle(int(dataRow[0]/scaling), int(dataRow[1]/scaling), sqrt(dataRow[2]));
-      addCycle(int(dataRow[0]/scaling), int(dataRow[1]/scaling), 0.6+0.4*dataRow[2]);
-      dataRow = walkData[walkData.length-1-currentDataRow];
-      addCycle(int(dataRow[0]/scaling), int(dataRow[1]/scaling), 0.6+0.4*dataRow[2]);
+      addCycle(int(dataRow[0]/scaling), int(dataRow[1]/scaling), dataRow[2]*dataRow[2]);
+    }
+    int currentDataRow2 = currentDataRow + walkData.length/30;
+    currentDataRow2 = currentDataRow2 % walkData.length;
 
-      currentDataRow++;
-      // stop if we're out of points
-      if (currentDataRow >= walkData.length) 
+    //iterate a few times
+    for (int iii=0; iii<120; iii++) {
+
+      dataRow = walkData[currentDataRow2];
+      if (dataRow[0] > myW || dataRow[1] > myH || dataRow[0] < 0 || dataRow[1] < 0)
       {
-        currentDataRow = 0;
-        //running = false;
+        currentDataRow2++;
+      } else
+      {
+        addCycle(int(dataRow[0]/scaling), int(dataRow[1]/scaling), dataRow[2]*dataRow[2]);
       }
+      currentDataRow2 += walkData.length/30;
+      currentDataRow2 = (++currentDataRow + currentDataRow2) % walkData.length;
+    }
+    // stop if we're out of points
+    if (currentDataRow >= walkData.length) 
+    {
+      currentDataRow %= walkData.length;
+      //running = false;
     }
   }
 
@@ -269,8 +268,7 @@ void next() {
 
 Cycle addCycle(int x, int y, float val)
 {
-  Cycle w = new Cycle(x, y, CYCLE_LIFETIME);
-  w.val = val;
+  Cycle w = new Cycle(x, y, CYCLE_LIFETIME, val);
 
   if (cycles.size() >= maxcycles)
   {
