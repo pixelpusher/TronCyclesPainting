@@ -1,9 +1,9 @@
-//final String dataFile = "11_Nov_selected.csv";  
+final String dataFile = "11_Nov_selected.csv";  
 //final String dataFile = "20160323.csv";
-final String dataFile = "20160622.csv";
-//final String dataFieldName = "MQ135 value";
+//final String dataFile = "20160622.csv";
+final String dataFieldName = "MQ135 value";
 //final String dataFieldName = "sound peak";
-final String dataFieldName = "light";
+//final String dataFieldName = "light";
 float[][] walkData;
 int currentDataRow = -1;
  
