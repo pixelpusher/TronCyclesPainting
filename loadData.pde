@@ -22,7 +22,7 @@ int currentDataRow = -1;
     //return val;
     //println("lat: " + lat);
     
-return new float[]{ 1.6*myW * (0. + 0.8 * lon), 1.6*myH * (-0.25 + 0.8*lat)};
+return new float[]{ 3.2*myW * (-0.17 + 0.8 * lon), 3.2*myH * (-0.42 + 0.8*lat)};
 //return new float[]{ myW * (0.1 + 4 * lon / PI), myH * (-1.125 + 2*lat/PI)};
  }
  

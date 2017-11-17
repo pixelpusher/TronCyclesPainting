@@ -26,7 +26,7 @@ final int [] dys = {
   0, -1, 0, 1
 };
 
-final int CYCLE_LIFETIME = 20;
+final int CYCLE_LIFETIME = 16;
 
 Grid grid;
 LinkedList<Cycle> cycles;
@@ -37,11 +37,11 @@ final int mincycles = 1;
 final int maxcycles = 120;
 int ncycles;
 boolean respawn = false; // respawn cycless automagically after dying
-final int scaleDown = 2;
+final int scaleDown = 1; // was 2 for renders black/turq
 
 boolean started = false;
 
-int scaling = (8*2*2+4)/scaleDown/2;
+int scaling = (8*2*2+4)/scaleDown/2; // was divided by 2
 int currentseed = 0;
 int nextwait = 0;
 
@@ -283,7 +283,7 @@ void next() {
 
 Cycle addCycle(int x, int y, float val)
 {
-  Cycle w = new Cycle(x, y, int(val*CYCLE_LIFETIME), val);
+  Cycle w = new Cycle(x, y, int(val*CYCLE_LIFETIME+2), val);
 
   if (cycles.size() >= maxcycles)
   {

@@ -47,7 +47,7 @@ void setupGrayScott()
   // used in video Nov 20th, nice wide rings
   //gsModes.put(GS_MODE_NORMAL, new GrayScottCoefficient(0.018, 0.066, 0.001, 0.06));
   
-  gsModes.put(GS_MODE_NORMAL, new GrayScottCoefficient(0.018*0.5, 0.066*0.5, 0.002, 0.06));
+  gsModes.put(GS_MODE_NORMAL, new GrayScottCoefficient(0.018*0.8, 0.066*0.8, 0.001, 0.06));
   
   //gsModes.put(GS_MODE_NORMAL, new GrayScottCoefficient(0.022, 0.066, 0.0002, 0.06));
   
@@ -229,12 +229,11 @@ class PatternedGrayScott extends GrayScott {
   
   
   public void updateFade() {
-    
     for (int yy = 0; yy < this.height; yy++) {
       for (int xx = 0; xx < this.width; xx++) {
         int idx = yy * this.width + xx;
-        uu[idx] *= 999f;
-        vv[idx] *= 999f;
+        uu[idx] += min(0.5f-uu[idx],0.00015f)*0.999f;
+        vv[idx] += min(0.505f-vv[idx],0.00001f)*0.999f;
       }
     }
   }
