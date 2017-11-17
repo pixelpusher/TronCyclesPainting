@@ -26,7 +26,7 @@ final int [] dys = {
   0, -1, 0, 1
 };
 
-final int CYCLE_LIFETIME = 10/2;
+final int CYCLE_LIFETIME = 20;
 
 Grid grid;
 LinkedList<Cycle> cycles;
@@ -37,13 +37,16 @@ final int mincycles = 1;
 final int maxcycles = 120;
 int ncycles;
 boolean respawn = false; // respawn cycless automagically after dying
+final int scaleDown = 2;
 
-int scaling = 8*2*2+4;
+boolean started = false;
+
+int scaling = (8*2*2+4)/scaleDown/2;
 int currentseed = 0;
 int nextwait = 0;
 
-static final int myW=3508;
-static final int myH=2480;
+final int myW=3508/scaleDown;
+final int myH=2480/scaleDown;
 
 int minMove = 1;
 
@@ -59,6 +62,8 @@ void settings()
  size(myW, myH, P3D);
  }
  */
+ 
+ String startTimeString = "";
 
 void setup() 
 {
@@ -70,6 +75,8 @@ void setup()
   currentDataRow = 0;
   //println(new int[]{width,height});
   smooth(2);
+
+  startTimeString = year()+"-"+day()+"-"+hour()+"-"+minute()+"-"+second();
 
   // needed to make sure we stop recording properly
   disposeHandler = new PEventsHandler(this);
@@ -102,6 +109,8 @@ void setup()
     // TODO: 
     // save frame to proper folder!
   }
+  noLoop();
+  
 } // end setup
 
 
@@ -121,6 +130,7 @@ void draw()
   drawGrayScott();
 
   int i = 0;
+  pushMatrix(); // state bleed??
 
   ListIterator<Cycle> li = cycles.listIterator();
   gsImg.beginDraw();
@@ -175,7 +185,8 @@ void draw()
   }
 
   gsImg.endDraw();
-
+  
+  popMatrix(); // state bleed??
   imageMode(CORNERS);
   image(gsImg, 0, 0, width, height);
 
@@ -221,18 +232,22 @@ void draw()
   }
 
 
-  //  pushMatrix();
-  //  scale(scaling);
-  for (Gesture g : gestures)
-  {
-    g.update();
-  }
-  //  popMatrix();
-
   //if (grid.isFullySolid()) 
   //{
   //  nextwait = 2*30;
   //}
+  //saveFrame("./frames/"+startTimeString+"_########.jpg");
+  
+  //int gridX = sketchMouseX();
+  //int gridY = sketchMouseY();
+  
+  float[] coords = cartesianToCoordinate(mouseX, mouseX);
+  
+  text("coords:" + coords[0] +", " + coords[1], mouseX,mouseY);
+  ellipseMode(CENTER);
+  fill(255);
+  ellipse(mouseX, mouseY, scaling, scaling);
+  
 }
 
 
@@ -268,7 +283,7 @@ void next() {
 
 Cycle addCycle(int x, int y, float val)
 {
-  Cycle w = new Cycle(x, y, CYCLE_LIFETIME, val);
+  Cycle w = new Cycle(x, y, int(val*CYCLE_LIFETIME), val);
 
   if (cycles.size() >= maxcycles)
   {

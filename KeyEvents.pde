@@ -52,6 +52,9 @@ void handleKeyPressed()
     case '+':
     case '=':
       break;
+     
+     case 's': loop();
+       break;
 
     case '-': 
       //saveFrame();

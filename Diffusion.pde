@@ -18,7 +18,7 @@ HashMap<String, ToneMap> gsColors;
 PGraphics gsImg;
 boolean clearGs = false;
 
-int gsScale = 8*2*2;
+int gsScale = 8*2*2/scaleDown/2;
 
 //12*3 or *2 was nice and chunky
 
@@ -39,15 +39,23 @@ void setupGrayScott()
 
   gsModes = new HashMap<String, GrayScottCoefficient>();
   // looser
-  gsModes.put(GS_MODE_NORMAL, new GrayScottCoefficient(0.02, 0.066, 0.12,0.19));
+  //gsModes.put(GS_MODE_NORMAL, new GrayScottCoefficient(0.02, 0.066, 0.12,0.19));
+  
   // more detail
   //gsModes.put(GS_MODE_NORMAL, new GrayScottCoefficient(0.02, 0.066, 0.06, 0.09));
   
+  // used in video Nov 20th, nice wide rings
   //gsModes.put(GS_MODE_NORMAL, new GrayScottCoefficient(0.018, 0.066, 0.001, 0.06));
+  
+  gsModes.put(GS_MODE_NORMAL, new GrayScottCoefficient(0.018*0.5, 0.066*0.5, 0.002, 0.06));
+  
   //gsModes.put(GS_MODE_NORMAL, new GrayScottCoefficient(0.022, 0.066, 0.0002, 0.06));
-  gsModes.put(GS_MODE_LOOSE, new GrayScottCoefficient(0.02, 0.07, 0.12, 0.08));
+  
+  //gsModes.put(GS_MODE_LOOSE, new GrayScottCoefficient(0.02, 0.07, 0.12, 0.08));
 
   gs.setCoefficients(gsModes.get(GS_MODE_NORMAL)); //    setCoefficients(float f, float k, float dU, float dV) 
+
+//gs.setCoefficients(gsModes.get(GS_MODE_LOOSE));
 
   gsColors = new HashMap<String, ToneMap>();
 
@@ -75,8 +83,8 @@ void setupGrayScott()
     
     TColor tmp = baseColor.getRotatedRYB((int)(-45+v*90));    
     
-    grad.addColorAt(int(v2*255), tmp);
-    //grad.addColorAt(int((v2+0.15f)*255), tmp.getDarkened(v2));
+    //grad.addColorAt(int(v2*255), tmp);
+    grad.addColorAt(int((v2+0.15f)*255), tmp.getDarkened(v2));
   }
   
   //grad.addColorAt(30, TColor.newRGBA(0.7f,0f, 0.7f, 0.8f));
@@ -109,6 +117,8 @@ void setupGrayScott()
 
   gsColors.put(COLOR_MODE_COOL, new ToneMap(0, 0.43, grad));
 
+gsColorMap = gsColors.get(COLOR_MODE_COOL);
+
   grad=new ColorGradient();
   // NamedColors are preset colors, but any TColor   
   grad.addColorAt(0, NamedColor.WHITE);
@@ -119,6 +129,8 @@ void setupGrayScott()
   grad.addColorAt(255, NamedColor.GREEN);
 
   gsColors.put(COLOR_MODE_INVERT, new ToneMap(0, 0.43, grad));
+  
+  //gsColorMap = gsColors.get(COLOR_MODE_INVERT);
 }
 
 
@@ -138,6 +150,7 @@ void drawGrayScott()
     // update the simulation a few time steps
     for (int i=0; i<NUM_ITERATIONS; i++) {
       gs.update(1);
+      gs.updateFade();
     }
     // read out the V result array
     // and use tone map to render colours
@@ -194,7 +207,7 @@ class PatternedGrayScott extends GrayScott {
     for (int yy = miy; yy < may; yy++) {
       for (int xx = mix; xx < max; xx++) {
         int idx = yy * width + xx;
-        uu[idx] = 1f;
+        uu[idx] = 0.5f;
         vv[idx] = 0f;
       }
     }
@@ -213,6 +226,20 @@ class PatternedGrayScott extends GrayScott {
       }
     }
   }
+  
+  
+  public void updateFade() {
+    
+    for (int yy = 0; yy < this.height; yy++) {
+      for (int xx = 0; xx < this.width; xx++) {
+        int idx = yy * this.width + xx;
+        uu[idx] *= 999f;
+        vv[idx] *= 999f;
+      }
+    }
+  }
+
+  
 }
 
 //
