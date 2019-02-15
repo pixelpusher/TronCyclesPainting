@@ -1,4 +1,5 @@
-final String dataFile = "new-ppm-air-quality-mq135top.csv";
+//final String dataFile = "new-ppm-air-quality-mq135top.csv";
+final String dataFile = "new-ppm-air-quality.csv";
 //final String dataFile = "11_Nov_selected.csv";  
 //final String dataFile = "20160323.csv";
 //final String dataFile = "20160622.csv";
@@ -21,8 +22,12 @@ int currentDataRow = -1;
     
     //return val;
     //println("lat: " + lat);
+
+   return new float[]{ myW * (0.1 + 0.8 * lon), myH * (0.1 + 0.8*lat)};
+
     
-return new float[]{ 3.2*myW * (-0.17 + 0.8 * lon), 3.2*myH * (-0.42 + 0.8*lat)};
+//return new float[]{ 3.2*myW * (-0.17 + 0.8 * lon), 3.2*myH * (-0.42 + 0.8*lat)};
+
 //return new float[]{ myW * (0.1 + 4 * lon / PI), myH * (-1.125 + 2*lat/PI)};
  }
  

@@ -177,7 +177,7 @@ void draw()
       //float mq135 = log(dataRow[2]);
       float mq135 = min(dataRow[2]*dataRow[2], 1f);
       int c = gsColorMap.getARGBToneFor(mq135);
-
+      
       gsImg.fill(c);
       gsImg.ellipse(int(dataRow[0]), int(dataRow[1]), mq135*scaling*8, mq135*scaling*8);
     }
